@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+
+# Playwright
+test-results/
+playwright-report/
+
+# Env files (local overrides stay local; .env.example is committed)
+.env
+.env.local
+.env.*.local
+
+# Platform
+.vercel/
+.netlify/
+
+# Logs
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor/OS
+.DS_Store
+Thumbs.db
+*.local

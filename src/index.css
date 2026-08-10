@@ -1,0 +1,145 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  .dark {
+    color-scheme: dark;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    overflow-x: clip;
+  }
+
+  body {
+    @apply font-sans antialiased bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100;
+  }
+
+  ::selection {
+    @apply bg-violet-500/25;
+  }
+
+  :focus-visible {
+    outline: 2px solid theme('colors.violet.500');
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply border backdrop-blur-xl bg-white/70 border-slate-200/70 transition-colors duration-500 dark:bg-slate-900/70 dark:border-slate-800;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-violet-600 via-indigo-500 to-fuchsia-500 bg-clip-text text-transparent dark:from-violet-400 dark:via-indigo-400 dark:to-fuchsia-400;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 px-8 py-4 font-display text-base font-semibold text-white shadow-xl shadow-violet-600/30 transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 hover:shadow-2xl hover:shadow-violet-600/40 active:translate-y-0;
+  }
+
+  .btn-secondary {
+    @apply glass inline-flex items-center justify-center gap-2.5 rounded-2xl px-8 py-4 font-display text-base font-semibold text-slate-800 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/10 active:translate-y-0 dark:text-slate-100 dark:hover:shadow-slate-950/50;
+  }
+
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, rgb(100 116 139 / 0.09) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(100 116 139 / 0.09) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+
+  .dark .bg-grid {
+    background-image:
+      linear-gradient(to right, rgb(148 163 184 / 0.07) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(148 163 184 / 0.07) 1px, transparent 1px);
+  }
+}
+
+@keyframes drift-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(70px, -50px) scale(1.15); }
+  66% { transform: translate(-50px, 40px) scale(0.92); }
+}
+
+@keyframes drift-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40% { transform: translate(-60px, 55px) scale(1.1); }
+  70% { transform: translate(45px, -30px) scale(0.95); }
+}
+
+@keyframes drift-c {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(55px, 35px) scale(1.2); }
+}
+
+@keyframes drift-d {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-70px, 45px) scale(1.15); }
+}
+
+.animate-drift-a { animation: drift-a 18s ease-in-out infinite; }
+.animate-drift-b { animation: drift-b 22s ease-in-out infinite; }
+.animate-drift-c { animation: drift-c 26s ease-in-out infinite; }
+.animate-drift-d { animation: drift-d 24s ease-in-out infinite; }
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.toast-in {
+  animation: toast-in 0.25s ease-out;
+}
+
+.animate-gradient-x {
+  background-size: 200% 200%;
+  animation: gradient-shift 6s ease infinite;
+}
+
+@keyframes merge-a {
+  0%, 14% { transform: translate(-92px, 10px) rotate(-6deg); opacity: 1; }
+  36%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+}
+
+@keyframes merge-b {
+  0%, 14% { transform: translate(92px, 16px) rotate(6deg); opacity: 1; }
+  36%, 48% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  100% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+}
+
+@keyframes merge-result {
+  0%, 42% { transform: scale(0.72); opacity: 0; }
+  54%, 100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes merge-check {
+  0%, 46% { transform: scale(0.4); opacity: 0; }
+  62%, 100% { transform: scale(1); opacity: 1; }
+}
+
+.merge-a { animation: merge-a 6.5s cubic-bezier(0.45, 0, 0.25, 1) infinite; }
+.merge-b { animation: merge-b 6.5s cubic-bezier(0.45, 0, 0.25, 1) infinite; }
+.merge-result { animation: merge-result 6.5s cubic-bezier(0.45, 0, 0.25, 1) infinite; }
+.merge-check { animation: merge-check 6.5s cubic-bezier(0.45, 0, 0.25, 1) infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
