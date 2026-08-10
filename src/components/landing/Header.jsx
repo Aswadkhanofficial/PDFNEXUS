@@ -111,8 +111,8 @@ export default function Header() {
             </button>
 
             {toolsOpen && (
-              <div className="absolute left-1/2 top-full -translate-x-1/2 pt-3" role="menu">
-                <div className="glass grid w-[42rem] grid-cols-2 gap-1.5 rounded-2xl p-3 shadow-2xl shadow-violet-950/30 dark:shadow-slate-950/80">
+              <div className="absolute left-1/2 top-full z-50 -translate-x-1/2 pt-3" role="menu">
+                <div className="grid w-[42rem] grid-cols-2 gap-1.5 rounded-2xl border border-slate-200/70 bg-white/95 p-3 shadow-2xl shadow-violet-950/30 backdrop-blur-2xl transition-colors duration-500 dark:border-slate-800 dark:bg-slate-950/95 dark:shadow-slate-950/80">
                   {TOOLS.map((tool) => (
                     <Link
                       key={tool.slug}
