@@ -1,122 +1,192 @@
-import { useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Document, Page, pdfjs } from 'react-pdf';
+import Draggable from 'react-draggable';
+import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import SignaturePad from '../components/SignaturePad';
-import { FileUp, Download, Eraser, ShieldCheck, PenTool, Image as ImageIcon, Copy, Check, CloudUpload, Loader2, CheckCircle2, Lock } from 'lucide-react';
+import { FileUp, Download, Eraser, ShieldCheck, PenTool, Image as ImageIcon, CloudUpload, Loader2, CheckCircle2, Lock, Move, RotateCcw, FileText } from 'lucide-react';
 import { PDFDocument } from 'pdf-lib';
+import { callWorker } from '../services/workerClient';
 import { useAuth } from '../context/AuthContext';
 import { usePaywall } from '../hooks/usePaywall';
 import { useToast } from '../components/Toast';
 import { saveDocument } from '../services/documentService';
 
+pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
+
+const PAGE_PREVIEW_WIDTH = 640;
+
 export default function Sign() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [activeTab, setActiveTab] = useState('draw'); // 'draw' or 'upload'
   const [sigImageFile, setSigImageFile] = useState(null);
+  const [signatureDataUrl, setSignatureDataUrl] = useState(null);
+  const [pdfMeta, setPdfMeta] = useState(null); // { width, height, pageCount } in PDF points
+  const [sigPos, setSigPos] = useState(null); // { x, y } px inside preview wrapper
+  const [sigSize, setSigSize] = useState(null); // { w, h } px display size
+  const [isDraggingSig, setIsDraggingSig] = useState(false);
+  const [pageReady, setPageReady] = useState(false);
   const [isSigning, setIsSigning] = useState(false);
-  const [capturedSignature, setCapturedSignature] = useState(null);
-  const [copied, setCopied] = useState(false);
   const [signedPdfBytes, setSignedPdfBytes] = useState(null);
   const [signedFileName, setSignedFileName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [saveError, setSaveError] = useState('');
   const sigPadRef = useRef(null);
+  const sigRef = useRef(null);
+  const wrapperRef = useRef(null);
+  const placementRef = useRef(false);
   const { user } = useAuth();
   const paywall = usePaywall('sign', 'signatures');
   const { error: toastError } = useToast();
+
+  useEffect(() => {
+    if (!signatureDataUrl || !pdfMeta) return;
+    let cancelled = false;
+    const img = new Image();
+    img.onload = () => {
+      if (cancelled) return;
+      const displayH = (PAGE_PREVIEW_WIDTH * pdfMeta.height) / pdfMeta.width;
+      const w = Math.min(180, Math.round(PAGE_PREVIEW_WIDTH * 0.28));
+      const h = Math.round(w * (img.naturalHeight / Math.max(img.naturalWidth, 1)));
+      setSigSize({ w, h });
+      if (!placementRef.current) {
+        placementRef.current = true;
+        setSigPos({
+          x: Math.round(PAGE_PREVIEW_WIDTH * 0.045),
+          y: Math.round(displayH * 0.55),
+        });
+      }
+    };
+    img.src = signatureDataUrl;
+    return () => {
+      cancelled = true;
+    };
+  }, [signatureDataUrl, pdfMeta]);
 
   if (paywall.lockedByUser) {
     return paywall.guestLockScreen;
   }
 
+  const loadPdfMeta = async (file) => {
+    try {
+      const bytes = await file.arrayBuffer();
+      const doc = await PDFDocument.load(bytes);
+      const { width, height } = doc.getPage(0).getSize();
+      setPdfMeta({ width, height, pageCount: doc.getPageCount() });
+    } catch (error) {
+      console.error('Failed to parse PDF:', error);
+      toastError('Could not read this PDF. It may be corrupted or password-protected.');
+    }
+  };
+
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      setSignatureDataUrl(null);
+      setSigPos(null);
+      setSigSize(null);
+      setPageReady(false);
+      setPdfMeta(null);
+      placementRef.current = false;
+      setSignedPdfBytes(null);
+      setIsSaved(false);
+      setSaveError('');
+      loadPdfMeta(file);
     }
   };
 
   const handleSigImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setSigImageFile(e.target.files[0]);
+      const file = e.target.files[0];
+      if (!['image/png', 'image/jpeg'].includes(file.type)) {
+        toastError('Please upload a PNG or JPG signature image.');
+        return;
+      }
+      setSigImageFile(file);
+      const reader = new FileReader();
+      reader.onload = (ev) => setSignatureDataUrl(ev.target.result);
+      reader.readAsDataURL(file);
     }
   };
 
-  const clearSignature = () => {
+  const handleClearPad = () => {
     if (sigPadRef.current) {
       sigPadRef.current.clear();
+      setSignatureDataUrl(null);
     }
   };
 
-  const copySvgPath = async () => {
-    if (!capturedSignature) return;
-    try {
-      await navigator.clipboard.writeText(capturedSignature.svgPath);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch {
-      alert('Failed to copy to clipboard.');
-    }
-  };
-
-  const handleSaveAndSign = async () => {
-    if (!selectedFile) {
-      alert('Please upload a PDF document first.');
+  const captureDrawnSignature = () => {
+    if (!sigPadRef.current) return;
+    if (sigPadRef.current.isEmpty()) {
+      setSignatureDataUrl(null);
       return;
     }
+    setSignatureDataUrl(sigPadRef.current.getSignatureData().pngDataUrl);
+  };
 
-    let signatureDataUrl;
+  const resetSigPosition = () => {
+    if (!pdfMeta) return;
+    const displayH = (PAGE_PREVIEW_WIDTH * pdfMeta.height) / pdfMeta.width;
+    setSigPos({
+      x: Math.round(PAGE_PREVIEW_WIDTH * 0.045),
+      y: Math.round(displayH * 0.55),
+    });
+  };
 
-    if (activeTab === 'draw') {
-      if (sigPadRef.current.isEmpty()) {
-        alert('Please draw your signature first.');
-        return;
-      }
-      const captured = sigPadRef.current.getSignatureData();
-      signatureDataUrl = captured.pngDataUrl;
-      setCapturedSignature(captured);
-    } else {
-      if (!sigImageFile) {
-        alert('Please upload your signature image file.');
-        return;
-      }
-      // Convert uploaded signature image to Data URL
-      signatureDataUrl = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target.result);
-        reader.readAsDataURL(sigImageFile);
-      });
+  const handleApplySignature = async () => {
+    if (!selectedFile) {
+      toastError('Please upload a PDF document first.');
+      return;
+    }
+    if (!signatureDataUrl) {
+      toastError('Please create or upload your signature first.');
+      return;
+    }
+    if (!pageReady || sigPos === null) {
+      toastError('Please wait for the document preview to finish loading.');
+      return;
     }
 
     setIsSigning(true);
     try {
       const existingPdfBytes = await selectedFile.arrayBuffer();
-      const pdfDoc = await PDFDocument.load(existingPdfBytes);
-      const pages = pdfDoc.getPages();
-      const firstPage = pages[0]; // Placing signature on the first page
-
-      // Embed signature image into PDF
       const imgBytes = await fetch(signatureDataUrl).then((res) => res.arrayBuffer());
-      
-      let embeddedImage;
-      if (signatureDataUrl.includes('image/jpeg') || signatureDataUrl.includes('image/jpg')) {
-        embeddedImage = await pdfDoc.embedJpg(imgBytes);
-      } else {
-        embeddedImage = await pdfDoc.embedPng(imgBytes);
+      const isJpeg = signatureDataUrl.includes('image/jpeg') || signatureDataUrl.includes('image/jpg');
+
+      const { width: pageW, height: pageH } = pdfMeta;
+      const wrapperEl = wrapperRef.current;
+      const sigEl = sigRef.current;
+      if (!wrapperEl || !sigEl || wrapperEl.getBoundingClientRect().width === 0) {
+        throw new Error('Document preview is not rendered yet.');
+      }
+      const wrapperRect = wrapperEl.getBoundingClientRect();
+      const sigRect = sigEl.getBoundingClientRect();
+      const scaleX = pageW / wrapperRect.width; // DOM px -> PDF points (horizontal)
+      const scaleY = pageH / wrapperRect.height; // DOM px -> PDF points (vertical)
+      const x = (sigRect.left - wrapperRect.left) * scaleX;
+      const width = sigRect.width * scaleX;
+      const height = sigRect.height * scaleY;
+      const y = pageH - (sigRect.top - wrapperRect.top) * scaleY - height; // PDF origin is bottom-left
+
+      let pdfBytes;
+      try {
+        pdfBytes = await callWorker(
+          'sign',
+          { data: existingPdfBytes, options: { img: imgBytes, x, y, width, height, isJpeg } },
+          [existingPdfBytes, imgBytes],
+        );
+      } catch {
+        const pdfDoc = await PDFDocument.load(await selectedFile.arrayBuffer());
+        const firstPage = pdfDoc.getPages()[0]; // Placing signature on the first page
+        const freshImg = await fetch(signatureDataUrl).then((res) => res.arrayBuffer());
+        const embeddedImage = isJpeg ? await pdfDoc.embedJpg(freshImg) : await pdfDoc.embedPng(freshImg);
+        firstPage.drawImage(embeddedImage, { x, y, width, height });
+        pdfBytes = await pdfDoc.save();
       }
 
-      const dims = embeddedImage.scale(0.35);
-
-      // Draw signature on the page (Coordinates: x, y)
-      firstPage.drawImage(embeddedImage, {
-        x: 50,
-        y: 50,
-        width: dims.width,
-        height: dims.height,
-      });
-
-      const pdfBytes = await pdfDoc.save();
-
-      // Trigger download
       const blob = new Blob([pdfBytes], { type: 'application/pdf' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
@@ -150,7 +220,7 @@ export default function Sign() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 p-8 flex flex-col items-center">
-      <div className="max-w-2xl w-full bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl">
+      <div className="max-w-4xl w-full bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl">
         <div className="flex items-center gap-3 mb-6">
           <div className="bg-purple-500/20 p-3 rounded-xl text-purple-400">
             <PenTool className="w-6 h-6" />
@@ -162,7 +232,7 @@ export default function Sign() {
                 {paywall.isPremium ? 'Unlimited' : `${paywall.remaining} free uses left`}
               </div>
             </div>
-            <p className="text-sm text-slate-400">Upload your document and apply a legally binding signature.</p>
+            <p className="text-sm text-slate-400">Upload your document, drag your signature into place, and download the signed PDF.</p>
           </div>
         </div>
 
@@ -213,12 +283,12 @@ export default function Sign() {
           {activeTab === 'draw' ? (
             <div>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-xs text-slate-400">Draw inside the box below</span>
-                <button onClick={clearSignature} className="text-xs text-slate-400 hover:text-red-400 flex items-center gap-1 transition-colors">
+                <span className="text-xs text-slate-400">Draw inside the box below - it will appear on the document instantly</span>
+                <button onClick={handleClearPad} className="text-xs text-slate-400 hover:text-red-400 flex items-center gap-1 transition-colors">
                   <Eraser className="w-3.5 h-3.5" /> Clear Pad
                 </button>
               </div>
-              <SignaturePad ref={sigPadRef} />
+              <SignaturePad ref={sigPadRef} onChange={captureDrawnSignature} />
             </div>
           ) : (
             <div>
@@ -236,9 +306,91 @@ export default function Sign() {
           )}
         </div>
 
+        {/* Visual Placement Section */}
+        {selectedFile && signatureDataUrl && (
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-slate-300">3. Position Signature on the Document</label>
+              {pdfMeta && (
+                <span className="inline-flex items-center gap-1.5 text-xs text-slate-400 bg-slate-800/60 border border-slate-700 rounded-full px-2.5 py-1">
+                  <FileText className="w-3.5 h-3.5 text-purple-400" /> Page 1 of {pdfMeta.pageCount}
+                </span>
+              )}
+            </div>
+            <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-3 shadow-inner">
+              <div className="overflow-auto max-h-[70vh] rounded-xl">
+                <div ref={wrapperRef} className="relative mx-auto w-fit">
+                  <Document
+                    file={selectedFile}
+                    onLoadError={() => toastError('Failed to render document preview.')}
+                    loading={
+                      <div className="w-[640px] aspect-[1/1.414] rounded-xl animate-pulse bg-slate-900 border border-slate-800" />
+                    }
+                    error={
+                      <div className="w-[640px] aspect-[1/1.414] rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center p-8 text-center text-sm text-slate-400">
+                        Could not render this PDF. It may be corrupted or password-protected.
+                      </div>
+                    }
+                  >
+                    <Page
+                      pageNumber={1}
+                      width={PAGE_PREVIEW_WIDTH}
+                      renderTextLayer={false}
+                      renderAnnotationLayer={false}
+                      onRenderSuccess={() => setPageReady(true)}
+                      className="rounded-xl shadow-2xl"
+                      loading={
+                        <div className="w-[640px] aspect-[1/1.414] rounded-xl animate-pulse bg-slate-900 border border-slate-800" />
+                      }
+                    />
+                  </Document>
+                  {sigPos && sigSize && (
+                    <Draggable
+                      nodeRef={sigRef}
+                      bounds="parent"
+                      position={sigPos}
+                      disabled={isSigning}
+                      onStart={() => setIsDraggingSig(true)}
+                      onDrag={(_, data) => setSigPos({ x: data.x, y: data.y })}
+                      onStop={() => setIsDraggingSig(false)}
+                    >
+                      <div
+                        ref={sigRef}
+                        className={`absolute left-0 top-0 z-10 touch-none ${
+                          isDraggingSig ? 'cursor-grabbing ring-4 ring-purple-500/40 rounded-sm' : 'cursor-move'
+                        }`}
+                      >
+                        <img
+                          src={signatureDataUrl}
+                          alt="Your signature"
+                          draggable={false}
+                          style={{ width: sigSize.w, height: sigSize.h }}
+                          className="max-w-none drop-shadow-lg"
+                        />
+                      </div>
+                    </Draggable>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-2.5 px-1">
+                <p className="text-xs text-slate-400 flex items-center gap-1.5">
+                  <Move className="w-3.5 h-3.5 text-purple-400" /> Drag the signature to your desired spot
+                </p>
+                <button
+                  type="button"
+                  onClick={resetSigPosition}
+                  className="text-xs text-slate-400 hover:text-purple-300 flex items-center gap-1.5 transition-colors"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" /> Reset Position
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Action Button */}
-        <button 
-          onClick={paywall.isLocked ? paywall.openModal : handleSaveAndSign}
+        <button
+          onClick={paywall.isLocked ? paywall.openModal : handleApplySignature}
           disabled={isSigning}
           className={`w-full disabled:opacity-50 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all ${
             paywall.isLocked
@@ -294,57 +446,6 @@ export default function Sign() {
         <div className="flex items-center justify-center gap-2 mt-4 text-xs text-slate-500">
           <ShieldCheck className="w-4 h-4 text-green-400" /> Secure client-side processing. Your files never leave your device.
         </div>
-
-        {capturedSignature && (
-          <div className="mt-6 border border-slate-800 rounded-xl bg-slate-950/60 p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-slate-200">Captured Signature Data</h2>
-              <span className="text-xs text-slate-500">
-                {capturedSignature.width} x {capturedSignature.height} px
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <p className="text-xs text-slate-400 mb-1.5">SVG Preview</p>
-                <div className="bg-white rounded-lg p-3 border border-slate-800 flex items-center justify-center min-h-[72px]">
-                  {capturedSignature.svgString ? (
-                    <img
-                      src={`data:image/svg+xml;base64,${btoa(capturedSignature.svgString)}`}
-                      alt="SVG preview"
-                      className="max-h-14 max-w-full"
-                    />
-                  ) : (
-                    <span className="text-xs text-slate-400">SVG unavailable after resize</span>
-                  )}
-                </div>
-              </div>
-              <div>
-                <p className="text-xs text-slate-400 mb-1.5">PNG Preview</p>
-                <div className="bg-white rounded-lg p-3 border border-slate-800 flex items-center justify-center min-h-[72px]">
-                  <img src={capturedSignature.pngDataUrl} alt="PNG preview" className="max-h-14 max-w-full" />
-                </div>
-              </div>
-            </div>
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <p className="text-xs text-slate-400">SVG Path Data</p>
-                <button
-                  type="button"
-                  onClick={copySvgPath}
-                  className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1 transition-colors"
-                >
-                  {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />} {copied ? 'Copied!' : 'Copy Path'}
-                </button>
-              </div>
-              <textarea
-                readOnly
-                value={capturedSignature.svgPath}
-                rows={3}
-                className="w-full font-mono text-xs text-slate-300 bg-slate-950 border border-slate-800 rounded-lg p-2.5 resize-y"
-              />
-            </div>
-          </div>
-        )}
       </div>
       {paywall.premiumModal}
     </div>

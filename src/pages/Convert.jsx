@@ -5,6 +5,7 @@ import {
   Image as ImageIcon, Images, ArrowRight,
 } from 'lucide-react';
 import { imagesToPdf } from '../services/pdfEngine';
+import { callWorker } from '../services/workerClient';
 import { usePaywall } from '../hooks/usePaywall.jsx';
 import { useAuth } from '../context/AuthContext';
 import { saveDocument } from '../services/documentService';
@@ -66,7 +67,14 @@ export default function Convert() {
     setIsProcessing(true);
     setErrorMsg('');
     try {
-      const outBytes = await imagesToPdf(files);
+      const bufs = await Promise.all(files.map((f) => f.arrayBuffer()));
+      const types = files.map((f) => f.type);
+      let outBytes;
+      try {
+        outBytes = await callWorker('convert', { data: bufs, options: { types } }, bufs);
+      } catch {
+        outBytes = await imagesToPdf(files);
+      }
       setResultBytes(outBytes);
       setResultName(files.length === 1 ? 'PDFNexus_Image.pdf' : 'PDFNexus_Images.pdf');
       setStep('done');

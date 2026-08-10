@@ -7,6 +7,10 @@ const columns = [
     links: [
       { label: 'Merge PDFs', to: '/merge' },
       { label: 'Split PDF', to: '/split' },
+      { label: 'Compress PDF', to: '/compress' },
+      { label: 'Rotate PDF', to: '/rotate' },
+      { label: 'Watermark PDF', to: '/watermark' },
+      { label: 'Reorder Pages', to: '/reorder' },
       { label: 'Image to PDF', to: '/convert' },
       { label: 'E-Sign Document', to: '/sign' },
     ],
@@ -36,8 +40,8 @@ export default function Footer() {
               </span>
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-slate-500 transition-colors duration-500 dark:text-slate-400">
-              Merge, split and e-sign PDFs in your browser — private by design, free
-              forever.
+              Merge, split, compress, rotate, watermark, reorder and e-sign PDFs in
+              your browser — private by design, free forever.
             </p>
           </div>
 

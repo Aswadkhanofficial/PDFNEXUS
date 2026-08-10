@@ -16,7 +16,7 @@ const smoothPath = (points) => {
 };
 
 const SignaturePad = forwardRef(function SignaturePad(
-  { penColor = '#000000', strokeWidth = 2, minStrokeWidth = 1, maxStrokeWidth = 12 },
+  { penColor = '#000000', strokeWidth = 2, minStrokeWidth = 1, maxStrokeWidth = 12, onChange },
   ref
 ) {
   const canvasRef = useRef(null);
@@ -112,6 +112,7 @@ const SignaturePad = forwardRef(function SignaturePad(
     drawingRef.current = false;
     currentStrokeRef.current = [];
     syncInkLayer();
+    onChange?.();
   };
 
   const undo = useCallback(() => {

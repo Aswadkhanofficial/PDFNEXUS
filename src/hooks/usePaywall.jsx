@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { getUsage, trackUsage, activatePremium } from '../services/usageService';
+import { useUsageTracking, DAILY_LIMIT } from './useUsageTracking';
+import { activatePremium } from '../services/usageService';
 import FreeLimit from '../components/FreeLimit';
-import PremiumModal from '../components/PremiumModal';
+import UpgradeModal from '../components/UpgradeModal';
 
-const MAX_FREE_USES = 3;
+export const GUEST_FREE_ACTIONS = 1;
 const STORAGE_KEY = 'pdfnexus_usage';
 
 const readLocal = (featureName) => {
@@ -28,41 +29,38 @@ const writeLocal = (featureName, count) => {
   }
 };
 
+/**
+ * The interception wrapper every tool page plugs in with
+ * `usePaywall('feature', 'label')`. It does NOT change tool logic:
+ * pages keep calling `paywall.afterSuccess()` on success and reading
+ * `paywall.isLocked` / `paywall.lockedByUser` for UI state.
+ *
+ * Guest policy: 1 free action, then the login/signup gate
+ * (FreeLimit) replaces the tool on the next entry — the in-progress
+ * result download is never yanked away.
+ * Member policy: DAILY_LIMIT (3) free actions per tool per day,
+ * tracked in Supabase user_usage; the upgrade modal opens on lock.
+ */
 export function usePaywall(featureName, featureLabel = 'uses') {
   const { user } = useAuth();
+  const { used, remaining, locked, premium, track, refresh } = useUsageTracking(featureName);
+  const [entryLocalCount] = useState(() => readLocal(featureName));
   const [localCount, setLocalCount] = useState(() => readLocal(featureName));
-  const [usage, setUsage] = useState({ used: 0, remaining: MAX_FREE_USES, locked: false, premium: false });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpgrading, setIsUpgrading] = useState(false);
   const [upgradeError, setUpgradeError] = useState('');
 
-  useEffect(() => {
-    if (!user) return;
-    getUsage(featureName)
-      .then((u) => {
-        if (!u) return;
-        setUsage(u);
-        if (u.locked) setIsModalOpen(true);
-      })
-      .catch(() => {});
-  }, [user, featureName]);
-
   const afterSuccess = async () => {
     if (!user) {
-      const next = localCount + 1;
-      setLocalCount(next);
-      writeLocal(featureName, next);
+      setLocalCount((prev) => {
+        const next = prev + 1;
+        writeLocal(featureName, next);
+        return next;
+      });
       return;
     }
-    try {
-      const u = await trackUsage(featureName);
-      if (u) {
-        setUsage(u);
-        if (u.locked) setIsModalOpen(true);
-      }
-    } catch {
-      /* server hiccup - never block the happy path */
-    }
+    const u = await track();
+    if (u?.locked) setIsModalOpen(true);
   };
 
   const upgrade = async () => {
@@ -70,8 +68,8 @@ export function usePaywall(featureName, featureLabel = 'uses') {
     setUpgradeError('');
     try {
       await activatePremium();
-      const u = await getUsage(featureName);
-      if (u) setUsage(u);
+      await refresh();
+      setIsModalOpen(false);
     } catch (error) {
       setUpgradeError(error.message);
     } finally {
@@ -79,30 +77,27 @@ export function usePaywall(featureName, featureLabel = 'uses') {
     }
   };
 
-  const guestLocked = !user && localCount >= MAX_FREE_USES;
-  const hasPremium = user ? usage.premium : false;
+  const guestLockedOnEntry = !user && entryLocalCount >= GUEST_FREE_ACTIONS;
 
   return {
-    used: user ? usage.used : localCount,
-    remaining: user ? usage.remaining : Math.max(0, MAX_FREE_USES - localCount),
-    maxUses: MAX_FREE_USES,
-    isLocked: user ? usage.locked : guestLocked,
-    isPremium: hasPremium,
-    lockedByUser: guestLocked,
+    used: user ? used : localCount,
+    remaining: user ? remaining : Math.max(0, GUEST_FREE_ACTIONS - localCount),
+    maxUses: user ? DAILY_LIMIT : GUEST_FREE_ACTIONS,
+    isLocked: user ? locked : guestLockedOnEntry,
+    isPremium: user ? premium : false,
+    lockedByUser: guestLockedOnEntry,
     afterSuccess,
     openModal: () => setIsModalOpen(true),
     closeModal: () => setIsModalOpen(false),
-    guestLockScreen: guestLocked ? <FreeLimit featureLabel={featureLabel} maxUses={MAX_FREE_USES} /> : null,
+    guestLockScreen: guestLockedOnEntry ? <FreeLimit featureLabel={featureLabel} /> : null,
     premiumModal: user ? (
-      <PremiumModal
+      <UpgradeModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onUpgrade={upgrade}
         isUpgrading={isUpgrading}
         upgradeError={upgradeError}
-        used={usage.used}
-        maxUses={MAX_FREE_USES}
-        isPremium={hasPremium}
+        isPremium={premium}
       />
     ) : null,
   };

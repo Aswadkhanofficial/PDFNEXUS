@@ -7,6 +7,7 @@ import {
   CheckCircle2, Scissors, CheckSquare, Square, ArrowRight,
 } from 'lucide-react';
 import { splitPdf } from '../services/pdfEngine';
+import { callWorker } from '../services/workerClient';
 import { usePaywall } from '../hooks/usePaywall.jsx';
 import { useAuth } from '../context/AuthContext';
 import { saveDocument } from '../services/documentService';
@@ -14,7 +15,7 @@ import { saveDocument } from '../services/documentService';
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
 
 const renderThumbnails = async (bytes) => {
-  const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
+  const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(bytes.slice(0)) }).promise;
   const items = [];
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i);
@@ -36,7 +37,6 @@ const renderThumbnails = async (bytes) => {
 export default function Split() {
   const [step, setStep] = useState('upload');
   const [file, setFile] = useState(null);
-  const [pdfBytes, setPdfBytes] = useState(null);
   const [thumbnails, setThumbnails] = useState([]);
   const [selectedPages, setSelectedPages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -66,9 +66,14 @@ export default function Split() {
     setStep('upload');
     try {
       const bytes = await pdfFile.arrayBuffer();
-      const thumbs = await renderThumbnails(bytes);
+      let thumbs;
+      try {
+        const blobs = await callWorker('thumbs', { data: bytes, options: { width: 180 } }, [bytes]);
+        thumbs = blobs.map((blob, i) => ({ page: i + 1, url: URL.createObjectURL(blob) }));
+      } catch {
+        thumbs = await renderThumbnails(await pdfFile.arrayBuffer());
+      }
       setFile(pdfFile);
-      setPdfBytes(bytes);
       setThumbnails(thumbs);
       setSelectedPages([]);
       setStep('select');
@@ -101,7 +106,13 @@ export default function Split() {
     setIsProcessing(true);
     setErrorMsg('');
     try {
-      const outBytes = await splitPdf(pdfBytes, selectedPages);
+      const bytes = await file.arrayBuffer();
+      let outBytes;
+      try {
+        outBytes = await callWorker('split', { data: bytes, options: { pages: selectedPages } }, [bytes]);
+      } catch {
+        outBytes = await splitPdf(await file.arrayBuffer(), selectedPages);
+      }
       const pagesLabel = selectedPages.map((p) => `p${p}`).join('-');
       setResultName(`PDFNexus_Split_${pagesLabel}.pdf`);
       setResultBytes(outBytes);
@@ -133,7 +144,6 @@ export default function Split() {
 
   const resetFlow = () => {
     setFile(null);
-    setPdfBytes(null);
     setThumbnails([]);
     setSelectedPages([]);
     setResultBytes(null);

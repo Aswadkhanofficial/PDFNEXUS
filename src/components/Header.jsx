@@ -9,8 +9,12 @@ export default function Header() {
 
   const navLinks = [
     { path: '/', label: 'Home' },
-    { path: '/merge', label: 'Merge PDFs' },
-    { path: '/split', label: 'Split PDF' },
+    { path: '/merge', label: 'Merge' },
+    { path: '/split', label: 'Split' },
+    { path: '/compress', label: 'Compress' },
+    { path: '/rotate', label: 'Rotate' },
+    { path: '/watermark', label: 'Watermark' },
+    { path: '/reorder', label: 'Reorder' },
     { path: '/convert', label: 'Image to PDF' },
     { path: '/sign', label: 'E-Sign' },
   ];
@@ -31,12 +35,12 @@ export default function Header() {
           <span className="text-xl font-black tracking-tight">PDFNexus</span>
         </Link>
 
-        <nav className="flex items-center gap-6">
+        <nav className="hidden lg:flex items-center gap-4 xl:gap-5">
           {navLinks.map((link) => (
             <Link
               key={link.path}
               to={link.path}
-              className={`text-sm font-semibold transition-colors ${
+              className={`text-sm font-semibold transition-colors whitespace-nowrap ${
                 isActive(link.path) ? 'text-purple-400' : 'text-slate-300 hover:text-white'
               }`}
             >

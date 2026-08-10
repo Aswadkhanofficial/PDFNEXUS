@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { mergePdfs } from '../services/pdfEngine';
+import { callWorker } from '../services/workerClient';
 import { usePaywall } from '../hooks/usePaywall.jsx';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
@@ -63,7 +64,13 @@ export default function Merge() {
     if (files.length < 2) return;
     setIsProcessing(true);
     try {
-      const mergedPdfBytes = await mergePdfs(files);
+      const bufs = await Promise.all(files.map((f) => f.arrayBuffer()));
+      let mergedPdfBytes;
+      try {
+        mergedPdfBytes = await callWorker('merge', { data: bufs }, bufs);
+      } catch {
+        mergedPdfBytes = await mergePdfs(files);
+      }
       const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       setMergedPdfBytes(mergedPdfBytes);

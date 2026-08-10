@@ -11,7 +11,7 @@ const features = [
   {
     icon: Zap,
     title: 'Lightning Speed',
-    copy: 'Merging, splitting and e-signing are instant. Pioneering in-browser performance tuned for work, not weekends.',
+    copy: 'Merging, splitting, compressing and e-signing are instant. Pioneering in-browser performance tuned for work, not weekends.',
     accent: 'text-indigo-500 dark:text-indigo-400',
     glow: 'bg-indigo-500',
   },

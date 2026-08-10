@@ -2,9 +2,9 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, CircleCheck, FileStack, PenTool, ShieldCheck, Sparkles } from 'lucide-react';
 
 const stats = [
-  { value: '2.4M+', label: 'documents merged' },
+  { value: '8', label: 'free PDF tools' },
   { value: '0', label: 'uploads — ever' },
-  { value: '4.9/5', label: 'from 12k+ reviews' },
+  { value: '100%', label: 'client-side processing' },
 ];
 
 function DocCard({ tone }) {
@@ -102,20 +102,20 @@ export default function Hero() {
             <span className="relative inline-flex h-2 w-2 rounded-full bg-violet-500" />
           </span>
           <Sparkles aria-hidden className="h-4 w-4" />
-          New — legally binding E-Signatures are live
+          Private by design — every tool runs in your browser
         </div>
 
         <h1 className="font-display text-5xl font-bold leading-[1.08] tracking-tight text-slate-900 transition-colors duration-500 dark:text-white sm:text-6xl lg:text-7xl">
-          Manage, Merge &amp; Sign PDFs
+          Merge, Split, Compress &amp; Sign PDFs
           <span className="gradient-text animate-gradient-x block pb-2 pt-2">
             without leaving your device.
           </span>
         </h1>
 
         <p className="mt-6 max-w-2xl text-base leading-relaxed text-slate-600 transition-colors duration-500 dark:text-slate-400 sm:text-lg">
-          PDFNexus is the private, production-grade PDF workspace. Merge, split and
-          e-sign documents directly in your browser — files never touch a server, so
-          they never leave your hands.
+          PDFNexus is the private, production-grade PDF workspace. Merge, split,
+          compress, rotate, watermark, reorder and e-sign documents directly in your
+          browser — files never touch a server, so they never leave your hands.
         </p>
 
         <div className="mt-10 flex w-full max-w-md flex-col items-center justify-center gap-4 sm:max-w-none sm:flex-row">
