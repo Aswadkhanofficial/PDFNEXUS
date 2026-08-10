@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Document, Page, pdfjs } from 'react-pdf';
-import Draggable from 'react-draggable';
+import { Rnd } from 'react-rnd';
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import SignaturePad from '../components/SignaturePad';
 import { FileUp, Download, Eraser, ShieldCheck, PenTool, Image as ImageIcon, CloudUpload, Loader2, CheckCircle2, Lock, Move, RotateCcw, FileText } from 'lucide-react';
@@ -15,6 +15,14 @@ import { saveDocument } from '../services/documentService';
 pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
 
 const PAGE_PREVIEW_WIDTH = 640;
+
+const HANDLE_STYLE = {
+  width: 10,
+  height: 10,
+  background: '#a855f7',
+  borderRadius: 2,
+  border: '1px solid rgba(255,255,255,0.6)',
+};
 
 export default function Sign() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -33,7 +41,6 @@ export default function Sign() {
   const [isSaved, setIsSaved] = useState(false);
   const [saveError, setSaveError] = useState('');
   const sigPadRef = useRef(null);
-  const sigRef = useRef(null);
   const wrapperRef = useRef(null);
   const placementRef = useRef(false);
   const { user } = useAuth();
@@ -145,7 +152,7 @@ export default function Sign() {
       toastError('Please create or upload your signature first.');
       return;
     }
-    if (!pageReady || sigPos === null) {
+    if (!pageReady || sigPos === null || sigSize === null) {
       toastError('Please wait for the document preview to finish loading.');
       return;
     }
@@ -158,18 +165,16 @@ export default function Sign() {
 
       const { width: pageW, height: pageH } = pdfMeta;
       const wrapperEl = wrapperRef.current;
-      const sigEl = sigRef.current;
-      if (!wrapperEl || !sigEl || wrapperEl.getBoundingClientRect().width === 0) {
+      if (!wrapperEl || wrapperEl.getBoundingClientRect().width === 0) {
         throw new Error('Document preview is not rendered yet.');
       }
       const wrapperRect = wrapperEl.getBoundingClientRect();
-      const sigRect = sigEl.getBoundingClientRect();
       const scaleX = pageW / wrapperRect.width; // DOM px -> PDF points (horizontal)
       const scaleY = pageH / wrapperRect.height; // DOM px -> PDF points (vertical)
-      const x = (sigRect.left - wrapperRect.left) * scaleX;
-      const width = sigRect.width * scaleX;
-      const height = sigRect.height * scaleY;
-      const y = pageH - (sigRect.top - wrapperRect.top) * scaleY - height; // PDF origin is bottom-left
+      const x = sigPos.x * scaleX;
+      const width = sigSize.w * scaleX;
+      const height = sigSize.h * scaleY;
+      const y = pageH - sigPos.y * scaleY - height; // PDF origin is bottom-left
 
       let pdfBytes;
       try {
@@ -345,36 +350,40 @@ export default function Sign() {
                     />
                   </Document>
                   {sigPos && sigSize && (
-                    <Draggable
-                      nodeRef={sigRef}
+                    <Rnd
                       bounds="parent"
                       position={sigPos}
-                      disabled={isSigning}
-                      onStart={() => setIsDraggingSig(true)}
-                      onDrag={(_, data) => setSigPos({ x: data.x, y: data.y })}
-                      onStop={() => setIsDraggingSig(false)}
+                      size={{ width: sigSize.w, height: sigSize.h }}
+                      disableDragging={isSigning}
+                      enableResizing={!isSigning}
+                      minWidth={40}
+                      minHeight={24}
+                      onDragStart={() => setIsDraggingSig(true)}
+                      onDragStop={(_, data) => {
+                        setIsDraggingSig(false);
+                        setSigPos({ x: data.x, y: data.y });
+                      }}
+                      onResizeStop={(_, __, ref, ___, position) => {
+                        setSigPos({ x: position.x, y: position.y });
+                        setSigSize({ w: ref.offsetWidth, h: ref.offsetHeight });
+                      }}
+                      style={{ zIndex: 10, touchAction: 'none' }}
+                      className={isDraggingSig ? 'cursor-grabbing' : 'cursor-move'}
+                      resizeHandleStyles={HANDLE_STYLE}
                     >
-                      <div
-                        ref={sigRef}
-                        className={`absolute left-0 top-0 z-10 touch-none ${
-                          isDraggingSig ? 'cursor-grabbing ring-4 ring-purple-500/40 rounded-sm' : 'cursor-move'
-                        }`}
-                      >
-                        <img
-                          src={signatureDataUrl}
-                          alt="Your signature"
-                          draggable={false}
-                          style={{ width: sigSize.w, height: sigSize.h }}
-                          className="max-w-none drop-shadow-lg"
-                        />
-                      </div>
-                    </Draggable>
+                      <img
+                        src={signatureDataUrl}
+                        alt="Your signature"
+                        draggable={false}
+                        className="w-full h-full max-w-none select-none pointer-events-none drop-shadow-lg"
+                      />
+                    </Rnd>
                   )}
                 </div>
               </div>
               <div className="flex items-center justify-between mt-2.5 px-1">
                 <p className="text-xs text-slate-400 flex items-center gap-1.5">
-                  <Move className="w-3.5 h-3.5 text-purple-400" /> Drag the signature to your desired spot
+                  <Move className="w-3.5 h-3.5 text-purple-400" /> Drag to move, drag a corner or edge handle to resize
                 </p>
                 <button
                   type="button"
