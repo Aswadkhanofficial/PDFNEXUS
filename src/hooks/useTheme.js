@@ -10,7 +10,7 @@ function getInitialTheme() {
   } catch {
     return 'dark';
   }
-  return window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  return 'dark';
 }
 
 export default function useTheme() {

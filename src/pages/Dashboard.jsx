@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  FileText, Download, Trash2, CloudUpload, Loader2, Inbox, Calendar, HardDrive,
+  FileText, Download, Trash2, CloudUpload, Loader2, Inbox, Calendar, HardDrive, ArrowRight,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
@@ -69,23 +69,39 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-6 py-10">
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+    <div className="relative w-full max-w-5xl mx-auto px-6 py-10">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -left-32 top-0 h-80 w-80 rounded-full bg-violet-600/10 blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-32 top-40 h-80 w-80 rounded-full bg-indigo-600/10 blur-3xl"
+      />
+
+      <div className="relative flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">My Documents</h1>
+          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-violet-400">
+            Dashboard
+          </p>
+          <h1 className="mt-2 text-3xl font-extrabold text-white tracking-tight">
+            My <span className="gradient-text">Documents</span>
+          </h1>
           <p className="text-sm text-slate-400 mt-1">
             Welcome back, {user?.user_metadata?.full_name || user?.email}. Your saved PDFs live here.
           </p>
         </div>
         <Link
-          to="/merge"
-          className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold px-5 py-3 rounded-lg transition-colors shadow-lg shadow-purple-600/20"
+          to="/tools/merge"
+          className="group inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:brightness-110 text-white text-sm font-bold px-5 py-3 rounded-xl transition-all duration-300 shadow-lg shadow-violet-600/30 hover:shadow-xl hover:shadow-violet-600/40 hover:-translate-y-0.5"
         >
           <CloudUpload className="w-4 h-4" /> New Merge
+          <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
         </Link>
       </div>
 
-      <div className="bg-slate-900 border border-slate-800 rounded-xl shadow-2xl overflow-hidden">
+      <div className="relative bg-slate-900/70 backdrop-blur-xl border border-slate-800 rounded-2xl shadow-2xl shadow-slate-950/60 overflow-hidden">
+        <div className="h-0.5 w-full bg-gradient-to-r from-violet-500 via-indigo-500 to-fuchsia-500" />
         <div className="px-6 py-4 border-b border-slate-800 hidden sm:grid grid-cols-12 gap-4 text-[11px] uppercase tracking-wider font-bold text-slate-500">
           <div className="col-span-5">File</div>
           <div className="col-span-2">Size</div>
@@ -107,7 +123,7 @@ export default function Dashboard() {
           </div>
         ) : documents.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-            <div className="w-16 h-16 bg-slate-800 text-slate-500 rounded-full flex items-center justify-center mb-4">
+            <div className="w-16 h-16 bg-gradient-to-tr from-violet-500/15 to-indigo-500/15 text-violet-400 rounded-full flex items-center justify-center mb-4 ring-1 ring-violet-500/30 shadow-[0_0_28px_-6px_rgba(139,92,246,0.5)]">
               <Inbox className="w-8 h-8" />
             </div>
             <h3 className="text-lg font-bold text-slate-200">No documents yet</h3>
@@ -115,8 +131,8 @@ export default function Dashboard() {
               Merge or sign a PDF and use “Save to My Documents” to see it here.
             </p>
             <Link
-              to="/merge"
-              className="mt-5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold px-5 py-2.5 rounded-lg transition-colors"
+              to="/tools/merge"
+              className="mt-5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:brightness-110 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-all duration-300 shadow-lg shadow-violet-600/30"
             >
               Merge your first PDF
             </Link>
@@ -124,9 +140,9 @@ export default function Dashboard() {
         ) : (
           <div className="divide-y divide-slate-800">
             {documents.map((doc) => (
-              <div key={doc.id} className="px-6 py-4 flex flex-col sm:grid sm:grid-cols-12 gap-3 sm:gap-4 items-start sm:items-center hover:bg-slate-800/40 transition-colors">
+              <div key={doc.id} className="px-6 py-4 flex flex-col sm:grid sm:grid-cols-12 gap-3 sm:gap-4 items-start sm:items-center hover:bg-violet-500/5 transition-colors">
                 <div className="col-span-5 flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 bg-purple-500/10 text-purple-400 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 bg-gradient-to-tr from-violet-600/20 to-indigo-600/20 text-violet-400 rounded-lg flex items-center justify-center flex-shrink-0 ring-1 ring-violet-500/20">
                     <FileText className="w-5 h-5" />
                   </div>
                   <div className="min-w-0">
@@ -144,7 +160,7 @@ export default function Dashboard() {
                   <button
                     onClick={() => handleDownload(doc)}
                     disabled={downloadingId === doc.id}
-                    className="p-2.5 rounded-lg bg-slate-800 hover:bg-purple-600/20 text-slate-300 hover:text-purple-400 disabled:opacity-50 transition-colors"
+                    className="p-2.5 rounded-lg bg-slate-800/80 hover:bg-violet-600/20 text-slate-300 hover:text-violet-300 hover:shadow-[0_0_16px_-4px_rgba(139,92,246,0.5)] disabled:opacity-50 transition-all"
                     title="Download"
                   >
                     {downloadingId === doc.id ? (
@@ -156,7 +172,7 @@ export default function Dashboard() {
                   <button
                     onClick={() => handleDelete(doc)}
                     disabled={deletingId === doc.id}
-                    className="p-2.5 rounded-lg bg-slate-800 hover:bg-red-500/20 text-slate-300 hover:text-red-400 disabled:opacity-50 transition-colors"
+                    className="p-2.5 rounded-lg bg-slate-800/80 hover:bg-red-500/20 text-slate-300 hover:text-red-400 disabled:opacity-50 transition-colors"
                     title="Delete"
                   >
                     {deletingId === doc.id ? (

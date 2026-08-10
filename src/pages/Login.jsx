@@ -35,17 +35,19 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-slate-200">
+    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-slate-200 relative overflow-hidden">
+      <div aria-hidden className="pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full bg-violet-600/15 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-indigo-600/15 blur-3xl" />
       
-      <div className="max-w-md w-full mb-6 bg-slate-900 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
+      <div className="max-w-md w-full mb-6 bg-slate-900 border border-slate-800 rounded-xl p-4 flex items-center justify-between relative">
         <div>
           <h3 className="text-slate-200 font-bold text-sm">Welcome back!</h3>
           <p className="text-slate-400 text-xs mt-1">Log in to continue your unlimited access.</p>
         </div>
       </div>
 
-      <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-purple-500 to-transparent"></div>
+      <div className="max-w-md w-full bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-8 shadow-2xl shadow-slate-950/60 relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-violet-500 to-transparent"></div>
         
         <div className="text-center mb-8">
           <h2 className="text-3xl font-extrabold text-white tracking-tight">Log In</h2>
@@ -100,7 +102,7 @@ export default function Login() {
             <Link to="#" className="text-sm text-purple-400 hover:text-purple-300 font-medium transition-colors">Forgot Password?</Link>
           </div>
 
-          <button type="submit" disabled={isLoading} className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-bold py-3.5 rounded-xl flex justify-center items-center gap-2 transition-all shadow-lg shadow-purple-600/20 mt-4">
+          <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:brightness-110 disabled:opacity-50 text-white font-bold py-3.5 rounded-xl flex justify-center items-center gap-2 transition-all duration-300 shadow-lg shadow-violet-600/30 hover:shadow-xl hover:shadow-violet-600/50 mt-4">
             {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Log In securely <ArrowRight className="w-4 h-4" /></>}
           </button>
         </form>

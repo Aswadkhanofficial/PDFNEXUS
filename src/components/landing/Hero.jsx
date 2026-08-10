@@ -32,7 +32,7 @@ function DocCard({ tone }) {
 
 function MergeDemo() {
   return (
-    <div className="mt-16 w-full max-w-lg">
+    <div className="animate-rise mt-16 w-full max-w-lg" style={{ animationDelay: '0.55s' }}>
       <div className="glass relative h-64 overflow-hidden rounded-3xl shadow-2xl shadow-slate-950/10 dark:shadow-slate-950/60">
         <div
           aria-hidden
@@ -96,7 +96,10 @@ export default function Hero() {
       />
 
       <div className="relative mx-auto flex max-w-4xl flex-col items-center px-6 pb-24 pt-36 text-center sm:pt-40">
-        <div className="glass mb-8 inline-flex items-center gap-2.5 rounded-full border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-sm font-medium text-violet-700 dark:border-violet-400/30 dark:bg-violet-400/10 dark:text-violet-300">
+        <div
+          className="animate-rise glass mb-8 inline-flex items-center gap-2.5 rounded-full border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-sm font-medium text-violet-700 shadow-[0_0_24px_-6px_rgba(139,92,246,0.5)] dark:border-violet-400/30 dark:bg-violet-400/10 dark:text-violet-300"
+          style={{ animationDelay: '0s' }}
+        >
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-violet-500 opacity-75" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-violet-500" />
@@ -105,37 +108,52 @@ export default function Hero() {
           Private by design — every tool runs in your browser
         </div>
 
-        <h1 className="font-display text-5xl font-bold leading-[1.08] tracking-tight text-slate-900 transition-colors duration-500 dark:text-white sm:text-6xl lg:text-7xl">
+        <h1
+          className="animate-rise font-display text-5xl font-bold leading-[1.08] tracking-tight text-slate-900 transition-colors duration-500 dark:text-white sm:text-6xl lg:text-7xl"
+          style={{ animationDelay: '0.1s' }}
+        >
           Merge, Split, Compress &amp; Sign PDFs
-          <span className="gradient-text animate-gradient-x block pb-2 pt-2">
+          <span className="gradient-text text-glow block pb-2 pt-2">
             without leaving your device.
           </span>
         </h1>
 
-        <p className="mt-6 max-w-2xl text-base leading-relaxed text-slate-600 transition-colors duration-500 dark:text-slate-400 sm:text-lg">
+        <p
+          className="animate-rise mt-6 max-w-2xl text-base leading-relaxed text-slate-600 transition-colors duration-500 dark:text-slate-400 sm:text-lg"
+          style={{ animationDelay: '0.2s' }}
+        >
           PDFNexus is the private, production-grade PDF workspace. Merge, split,
           compress, rotate, watermark, reorder and e-sign documents directly in your
           browser — files never touch a server, so they never leave your hands.
         </p>
 
-        <div className="mt-10 flex w-full max-w-md flex-col items-center justify-center gap-4 sm:max-w-none sm:flex-row">
-          <Link to="/merge" className="btn-primary group w-full sm:w-auto">
+        <div
+          className="animate-rise mt-10 flex w-full max-w-md flex-col items-center justify-center gap-4 sm:max-w-none sm:flex-row"
+          style={{ animationDelay: '0.3s' }}
+        >
+          <Link to="/tools/merge" className="btn-primary group w-full sm:w-auto">
             <FileStack aria-hidden className="h-5 w-5 transition-transform duration-300 group-hover:rotate-12" />
             Merge PDFs Now
             <ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
-          <Link to="/sign" className="btn-secondary group w-full sm:w-auto">
+          <Link to="/tools/sign" className="btn-secondary group w-full sm:w-auto">
             <PenTool aria-hidden className="h-5 w-5 text-violet-500 transition-transform duration-300 group-hover:-rotate-12 dark:text-violet-400" />
             E-Sign Document
           </Link>
         </div>
 
-        <p className="mt-6 flex items-center gap-2 text-sm text-slate-500 transition-colors duration-500 dark:text-slate-500">
+        <p
+          className="animate-rise mt-6 flex items-center gap-2 text-sm text-slate-500 transition-colors duration-500 dark:text-slate-500"
+          style={{ animationDelay: '0.4s' }}
+        >
           <ShieldCheck aria-hidden className="h-4 w-4 text-emerald-500" />
           Client-side processing — your documents never upload
         </p>
 
-        <div className="mt-10 flex items-center justify-center gap-6 sm:gap-10">
+        <div
+          className="animate-rise mt-10 flex items-center justify-center gap-6 sm:gap-10"
+          style={{ animationDelay: '0.5s' }}
+        >
           {stats.map((stat, index) => (
             <div key={stat.label} className="flex items-center gap-6 sm:gap-10">
               {index > 0 && (

@@ -39,6 +39,14 @@
     @apply bg-gradient-to-r from-violet-600 via-indigo-500 to-fuchsia-500 bg-clip-text text-transparent dark:from-violet-400 dark:via-indigo-400 dark:to-fuchsia-400;
   }
 
+  .text-glow {
+    text-shadow: 0 0 10px rgb(139 92 246 / 0.55), 0 0 42px rgb(99 102 241 / 0.35);
+  }
+
+  .card-glow {
+    @apply transition-all duration-300 hover:-translate-y-1.5 hover:border-violet-500/50 hover:shadow-[0_0_34px_-8px_rgb(139_92_246_/_0.5)];
+  }
+
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 px-8 py-4 font-display text-base font-semibold text-white shadow-xl shadow-violet-600/30 transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 hover:shadow-2xl hover:shadow-violet-600/40 active:translate-y-0;
   }
@@ -87,6 +95,13 @@
 .animate-drift-b { animation: drift-b 22s ease-in-out infinite; }
 .animate-drift-c { animation: drift-c 26s ease-in-out infinite; }
 .animate-drift-d { animation: drift-d 24s ease-in-out infinite; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-rise { animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
 @keyframes gradient-shift {
   0%, 100% { background-position: 0% 50%; }

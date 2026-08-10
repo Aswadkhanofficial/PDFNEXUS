@@ -1,10 +1,11 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './components/Toast';
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
+import { TOOLS } from './data/tools';
 
 const Merge = lazy(() => import('./pages/Merge'));
 const Sign = lazy(() => import('./pages/Sign'));
@@ -20,6 +21,10 @@ const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Privacy = lazy(() => import('./pages/Privacy'));
 const Terms = lazy(() => import('./pages/Terms'));
 const Contact = lazy(() => import('./pages/Contact'));
+
+const TOOL_PAGES = { merge: Merge, sign: Sign, split: Split, compress: Compress, rotate: Rotate, watermark: Watermark, reorder: Reorder, 'image-to-pdf': Convert };
+
+const LEGACY_REDIRECTS = { merge: '/merge', sign: '/sign', split: '/split', compress: '/compress', rotate: '/rotate', watermark: '/watermark', reorder: '/reorder', 'image-to-pdf': '/convert' };
 
 function PageLoader() {
   return (
@@ -37,14 +42,30 @@ export default function App() {
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/merge" element={<Merge />} />
-              <Route path="/sign" element={<Sign />} />
-              <Route path="/split" element={<Split />} />
-              <Route path="/convert" element={<Convert />} />
-              <Route path="/compress" element={<Compress />} />
-              <Route path="/rotate" element={<Rotate />} />
-              <Route path="/watermark" element={<Watermark />} />
-              <Route path="/reorder" element={<Reorder />} />
+
+              {TOOLS.map((tool) => {
+                const Page = TOOL_PAGES[tool.slug];
+                return (
+                  <Route
+                    key={tool.slug}
+                    path={tool.path}
+                    element={
+                      <MainLayout>
+                        <Page />
+                      </MainLayout>
+                    }
+                  />
+                );
+              })}
+
+              {TOOLS.map((tool) => (
+                <Route
+                  key={tool.slug}
+                  path={LEGACY_REDIRECTS[tool.slug]}
+                  element={<Navigate to={tool.path} replace />}
+                />
+              ))}
+
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/contact" element={<Contact />} />

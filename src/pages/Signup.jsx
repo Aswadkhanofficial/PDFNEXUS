@@ -60,7 +60,7 @@ export default function Signup() {
               href={providerLink} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3.5 rounded-xl flex items-center justify-center transition-all shadow-[0_0_20px_rgba(147,51,234,0.3)] mb-4 gap-2"
+              className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:brightness-110 text-white font-bold py-3.5 rounded-xl flex items-center justify-center transition-all shadow-[0_0_24px_rgba(139,92,246,0.4)] mb-4 gap-2"
             >
               Open Inbox <ExternalLink className="w-4 h-4" />
             </a>
@@ -89,8 +89,8 @@ export default function Signup() {
         </div>
       </div>
 
-      <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-purple-500 to-transparent"></div>
+      <div className="max-w-md w-full bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-8 shadow-2xl shadow-slate-950/60 relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-violet-500 to-transparent"></div>
         
         <div className="text-center mb-8">
           <h2 className="text-3xl font-extrabold text-white tracking-tight">Create Account</h2>
@@ -134,7 +134,7 @@ export default function Signup() {
             </button>
           </div>
 
-          <button type="submit" disabled={isLoading} className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-bold py-3.5 rounded-xl flex justify-center items-center transition-all shadow-lg shadow-purple-600/20 mt-2">
+          <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:brightness-110 disabled:opacity-50 text-white font-bold py-3.5 rounded-xl flex justify-center items-center transition-all duration-300 shadow-lg shadow-violet-600/30 hover:shadow-xl hover:shadow-violet-600/50 mt-2">
             {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Sign Up & Unlock Limits"}
           </button>
         </form>
