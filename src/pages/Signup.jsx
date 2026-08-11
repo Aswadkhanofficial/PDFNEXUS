@@ -5,10 +5,9 @@ import { supabase } from '../services/supabaseClient';
 
 const PASSWORD_ERROR =
   'Password must be at least 6 characters long and include a special character (e.g., @, #, *).';
-const SPECIAL_CHAR_REGEX = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/;
+const PASSWORD_REGEX = /^(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{6,}$/;
 
-const validatePassword = (password) =>
-  password.length >= 6 && SPECIAL_CHAR_REGEX.test(password);
+const validatePassword = (password) => PASSWORD_REGEX.test(password);
 
 const isPasswordPolicyError = (message = '') =>
   /password/i.test(message) &&
