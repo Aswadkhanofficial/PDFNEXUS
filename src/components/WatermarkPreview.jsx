@@ -3,7 +3,6 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import { Rnd } from 'react-rnd';
 import { FileText } from 'lucide-react';
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
-import { drawWatermark } from '../utils/watermarkDraw';
 import { useToast } from './Toast';
 
 pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
@@ -13,9 +12,6 @@ const MAX_PREVIEW_WIDTH = 640;
 export default function WatermarkPreview({ file, options, onPositionChange }) {
   const panelRef = useRef(null);
   const wrapperRef = useRef(null);
-  const canvasRef = useRef(null);
-  const pageMetaRef = useRef(null);
-  const [pageMeta, setPageMeta] = useState(null);
   const [pageCount, setPageCount] = useState(null);
   const [wrapSize, setWrapSize] = useState({ w: 0, h: 0 });
   const [pageWidth, setPageWidth] = useState(MAX_PREVIEW_WIDTH);
@@ -44,15 +40,19 @@ export default function WatermarkPreview({ file, options, onPositionChange }) {
     return () => ro.disconnect();
   }, []);
 
+  const fontSizePx = useMemo(
+    () => Math.max(12, (wrapSize.w * options.fontSizePct) / 100),
+    [wrapSize.w, options.fontSizePct]
+  );
+
   const wmBox = useMemo(() => {
-    if (!wrapSize.w || !pageMeta) return { w: 200, h: 60 };
-    const fontSizePx = Math.max(12, (wrapSize.w * options.fontSizePct) / 100);
+    if (!wrapSize.w) return { w: 200, h: 60 };
     const scratch = document.createElement('canvas');
     const sctx = scratch.getContext('2d');
     sctx.font = `bold ${fontSizePx}px Helvetica, Arial, sans-serif`;
     const w = Math.ceil(sctx.measureText(options.text || 'CONFIDENTIAL').width);
     return { w: Math.max(24, w + 8), h: Math.max(16, Math.ceil(fontSizePx)) };
-  }, [wrapSize, pageMeta, options.fontSizePct, options.text]);
+  }, [wrapSize, fontSizePx, options.text]);
 
   const posPx = useMemo(() => {
     if (!wrapSize.w || !wrapSize.h) return null;
@@ -61,35 +61,6 @@ export default function WatermarkPreview({ file, options, onPositionChange }) {
       y: Math.round(options.yPct * wrapSize.h - wmBox.h / 2),
     };
   }, [wrapSize, options.xPct, options.yPct, wmBox]);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const meta = pageMetaRef.current;
-    if (!canvas || !meta) return;
-    const raf = requestAnimationFrame(() => {
-      drawWatermark(canvas.getContext('2d'), {
-        width: meta.width,
-        height: meta.height,
-        ...options,
-        opacity: options.opacity / 100,
-      });
-    });
-    return () => cancelAnimationFrame(raf);
-  }, [options, pageMeta]);
-
-  const handlePageRender = (page) => {
-    const viewport = page.getViewport({ scale: 1 });
-    const meta = { width: viewport.width, height: viewport.height };
-    pageMetaRef.current = meta;
-    setPageMeta(meta);
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const dpr = Math.max(1, window.devicePixelRatio || 1);
-      canvas.width = Math.ceil(meta.width * dpr);
-      canvas.height = Math.ceil(meta.height * dpr);
-      canvas.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-  };
 
   const handleDragStop = (_, data) => {
     setIsDragging(false);
@@ -129,19 +100,12 @@ export default function WatermarkPreview({ file, options, onPositionChange }) {
               width={pageWidth}
               renderTextLayer={false}
               renderAnnotationLayer={false}
-              onRenderSuccess={handlePageRender}
               className="rounded-xl shadow-2xl"
               loading={
                 <div className="w-[640px] aspect-[1/1.414] rounded-xl animate-pulse bg-slate-200 border border-slate-200 dark:bg-slate-900 dark:border-slate-800" />
               }
             />
           </Document>
-          <canvas
-            ref={canvasRef}
-            data-testid="watermark-overlay"
-            className="absolute inset-0 w-full h-full pointer-events-none rounded-xl"
-            style={{ width: '100%', height: '100%' }}
-          />
           {posPx && wrapSize.w === pageWidth && (
             <Rnd
               bounds="parent"
@@ -154,14 +118,29 @@ export default function WatermarkPreview({ file, options, onPositionChange }) {
               className={isDragging ? 'cursor-grabbing' : 'cursor-move'}
             >
               <div
-                className="absolute inset-0 pointer-events-none"
+                data-testid="watermark-overlay"
+                className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
+                style={{
+                  transform: `rotate(${options.rotation ?? 0}deg)`,
+                  transformOrigin: 'center center',
+                  color: options.color,
+                  opacity: options.opacity / 100,
+                  fontSize: `${fontSizePx}px`,
+                  fontWeight: 'bold',
+                  fontFamily: 'Helvetica, Arial, sans-serif',
+                  lineHeight: 1,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {options.text}
+              </div>
+              <div
+                className="absolute inset-0 border-2 border-dashed border-purple-500/70 rounded pointer-events-none"
                 style={{
                   transform: `rotate(${options.rotation ?? 0}deg)`,
                   transformOrigin: 'center center',
                 }}
-              >
-                <div className="absolute inset-0 border-2 border-dashed border-purple-500/70 rounded" />
-              </div>
+              />
             </Rnd>
           )}
         </div>
