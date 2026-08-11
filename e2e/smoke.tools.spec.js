@@ -207,10 +207,10 @@ test('tools: compress, rotate, watermark, reorder + site parity', async ({ page 
     expect(body).toContain(tool);
   }
   expect(body).toContain('8');
-  await expect(page.locator('a[href="/compress"]')).toBeVisible();
-  await expect(page.locator('a[href="/rotate"]')).toBeVisible();
-  await expect(page.locator('a[href="/watermark"]')).toBeVisible();
-  await expect(page.locator('a[href="/reorder"]')).toBeVisible();
+  await expect(page.locator('a[href="/tools/compress"]').first()).toBeVisible();
+  await expect(page.locator('a[href="/tools/rotate"]').first()).toBeVisible();
+  await expect(page.locator('a[href="/tools/watermark"]').first()).toBeVisible();
+  await expect(page.locator('a[href="/tools/reorder"]').first()).toBeVisible();
 
   expect(errors).toEqual([]);
 });

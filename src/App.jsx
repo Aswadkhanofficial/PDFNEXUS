@@ -3,8 +3,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './components/Toast';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
 import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
+import AuthGateHarness from './testing/AuthGateHarness';
 import { TOOLS } from './data/tools';
 
 const Merge = lazy(() => import('./pages/Merge'));
@@ -18,6 +20,7 @@ const Reorder = lazy(() => import('./pages/Reorder'));
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const Privacy = lazy(() => import('./pages/Privacy'));
 const Terms = lazy(() => import('./pages/Terms'));
 const Contact = lazy(() => import('./pages/Contact'));
@@ -71,6 +74,9 @@ export default function App() {
               <Route path="/contact" element={<Contact />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              {import.meta.env.DEV && (
+                <Route path="/__dev/authgate" element={<AuthGateHarness />} />
+              )}
               <Route
                 path="/dashboard"
                 element={
@@ -79,6 +85,16 @@ export default function App() {
                       <Dashboard />
                     </MainLayout>
                   </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <AdminRoute>
+                    <MainLayout>
+                      <AdminDashboard />
+                    </MainLayout>
+                  </AdminRoute>
                 }
               />
             </Routes>

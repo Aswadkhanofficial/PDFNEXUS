@@ -32,8 +32,8 @@ function DocCard({ tone }) {
 
 function MergeDemo() {
   return (
-    <div className="animate-rise mt-16 w-full max-w-lg" style={{ animationDelay: '0.55s' }}>
-      <div className="glass relative h-64 overflow-hidden rounded-3xl shadow-2xl shadow-slate-950/10 dark:shadow-slate-950/60">
+    <div className="animate-rise mt-10 w-full max-w-lg" style={{ animationDelay: '0.55s' }}>
+      <div className="glass relative h-56 overflow-hidden rounded-3xl shadow-2xl shadow-slate-950/10 dark:shadow-slate-950/60">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-violet-500/10 to-transparent"
@@ -95,7 +95,7 @@ export default function Hero() {
         className="animate-drift-c pointer-events-none absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-fuchsia-500/15 blur-3xl dark:bg-fuchsia-500/15"
       />
 
-      <div className="relative mx-auto flex max-w-4xl flex-col items-center px-6 pb-24 pt-36 text-center sm:pt-40">
+      <div className="relative mx-auto flex max-w-4xl flex-col items-center px-6 pb-12 pt-12 text-center sm:pt-16">
         <div
           className="animate-rise glass mb-8 inline-flex items-center gap-2.5 rounded-full border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-sm font-medium text-violet-700 shadow-[0_0_24px_-6px_rgba(139,92,246,0.5)] dark:border-violet-400/30 dark:bg-violet-400/10 dark:text-violet-300"
           style={{ animationDelay: '0s' }}

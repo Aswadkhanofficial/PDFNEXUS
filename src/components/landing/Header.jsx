@@ -13,12 +13,15 @@ const TABS = [
 
 export default function Header() {
   const { theme, toggleTheme } = useTheme();
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAdmin } = useAuth();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [toolsOpen, setToolsOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const toolsRef = useRef(null);
+
+  // Admin entry is offered only when the DB (admin_roles via RLS) says so.
+  const tabs = isAdmin ? [...TABS, { label: 'Admin', to: '/admin', end: false }] : TABS;
 
   const onTools = pathname.startsWith('/tools');
   const initial = (user?.user_metadata?.full_name || user?.email || 'U').charAt(0).toUpperCase();
@@ -80,7 +83,7 @@ export default function Header() {
           className="hidden items-center gap-1 md:absolute md:left-1/2 md:-translate-x-1/2 md:flex"
           aria-label="Primary"
         >
-          {TABS.map((tab) => (
+          {tabs.map((tab) => (
             <Link key={tab.label} to={tab.to} className={tabClass(tab)} onClick={closeMenus}>
               {tab.label}
             </Link>
@@ -201,7 +204,7 @@ export default function Header() {
       {menuOpen && (
         <div className="glass mx-4 mb-4 rounded-2xl p-4 shadow-xl md:hidden dark:shadow-slate-950/80">
           <nav className="flex flex-col gap-1" aria-label="Mobile">
-            {TABS.map((tab) => (
+            {tabs.map((tab) => (
               <Link
                 key={tab.label}
                 to={tab.to}

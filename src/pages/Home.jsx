@@ -1,5 +1,6 @@
 import Header from '../components/landing/Header';
 import Hero from '../components/landing/Hero';
+import ToolGrid from '../components/landing/ToolGrid';
 import Features from '../components/landing/Features';
 import Footer from '../components/landing/Footer';
 
@@ -9,6 +10,7 @@ export default function Home() {
       <Header />
       <main className="flex-1">
         <Hero />
+        <ToolGrid />
         <Features />
       </main>
       <Footer />
