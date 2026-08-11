@@ -11,11 +11,19 @@ test.describe('Dashboard', () => {
   test('lists the user documents from the API', async ({ page }) => {
     await page.goto('/dashboard');
 
-    await expect(page.getByRole('heading', { name: 'My Documents' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Recent Files' })).toBeVisible();
     for (const doc of DOC_FIXTURES) {
       await expect(page.getByText(doc.file_name, { exact: true })).toBeVisible();
     }
     await expect(page.getByText('240.0 KB')).toHaveCount(2);
+  });
+
+  test('shows the tool grid', async ({ page }) => {
+    await page.goto('/dashboard');
+
+    for (const name of ['Merge PDF', 'Split PDF', 'Compress PDF', 'E-Sign']) {
+      await expect(page.getByRole('link', { name: new RegExp(name) })).toBeVisible();
+    }
   });
 
   test('deletes a document after confirmation', async ({ page }) => {
@@ -34,6 +42,6 @@ test.describe('Dashboard', () => {
     await mockRest(page, { docs: [] });
     await page.goto('/dashboard');
 
-    await expect(page.getByText('No documents yet')).toBeVisible();
+    await expect(page.getByText('No files yet')).toBeVisible();
   });
 });

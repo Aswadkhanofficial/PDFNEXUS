@@ -19,7 +19,7 @@ const Watermark = lazy(() => import('./pages/Watermark'));
 const Reorder = lazy(() => import('./pages/Reorder'));
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
-const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Workspace = lazy(() => import('./pages/Workspace'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const Privacy = lazy(() => import('./pages/Privacy'));
 const Terms = lazy(() => import('./pages/Terms'));
@@ -82,7 +82,7 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <MainLayout>
-                      <Dashboard />
+                      <Workspace />
                     </MainLayout>
                   </ProtectedRoute>
                 }

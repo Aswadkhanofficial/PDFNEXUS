@@ -3,12 +3,12 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDown, FileStack, LogOut, Menu, X } from 'lucide-react';
 import { TOOLS } from '../../data/tools';
 import { useAuth } from '../../context/AuthContext';
-import useTheme from '../../hooks/useTheme';
+import { useTheme } from '../../context/ThemeContext';
 import ThemeToggle from './ThemeToggle';
 
 const TABS = [
   { label: 'Home', to: '/', end: true },
-  { label: 'Dashboard', to: '/dashboard', end: false },
+  { label: 'Workspace', to: '/dashboard', end: false },
 ];
 
 export default function Header() {
