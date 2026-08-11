@@ -3,6 +3,17 @@ import { Link } from 'react-router-dom';
 import { Mail, Lock, User, Loader2, CheckCircle2, ExternalLink, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../services/supabaseClient';
 
+const PASSWORD_ERROR =
+  'Password must be at least 6 characters long and include a special character (e.g., @, #, *).';
+const SPECIAL_CHAR_REGEX = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/;
+
+const validatePassword = (password) =>
+  password.length >= 6 && SPECIAL_CHAR_REGEX.test(password);
+
+const isPasswordPolicyError = (message = '') =>
+  /password/i.test(message) &&
+  /(special|charact|at least|number|uppercase|lowercase)/i.test(message);
+
 export default function Signup() {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
@@ -14,8 +25,14 @@ export default function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
     setErrorMsg('');
+
+    if (!validatePassword(formData.password)) {
+      setErrorMsg(PASSWORD_ERROR);
+      return;
+    }
+
+    setIsLoading(true);
 
     try {
       const { error } = await supabase.auth.signUp({
@@ -28,7 +45,7 @@ export default function Signup() {
       setIsSuccess(true);
       
     } catch (error) {
-      setErrorMsg(error.message);
+      setErrorMsg(isPasswordPolicyError(error.message) ? PASSWORD_ERROR : error.message);
     } finally {
       setIsLoading(false);
     }
