@@ -4,6 +4,8 @@ import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
 
+import { drawWatermark } from '../utils/watermarkDraw';
+
 const loadPdf = (data) => PDFDocument.load(data);
 
 const compress = async (data, { scale = 0.75, quality = 0.7 } = {}) => {
@@ -89,9 +91,28 @@ const rotate = async (data, { rotations } = {}) => {
 };
 
 const watermark = async (data, options = {}) => {
-  const { text = 'CONFIDENTIAL', fontSizePct = 8, opacity = 0.25, color = '#000000', diagonal = true } = options;
+  const {
+    text = 'CONFIDENTIAL',
+    fontSizePct = 8,
+    opacity = 0.25,
+    color = '#000000',
+    rotation = -45,
+    xPct = 0.5,
+    yPct = 0.5,
+  } = options;
+  const safe = {
+    text,
+    fontSizePct: Math.max(0.5, Number(fontSizePct) || 8),
+    opacity: Math.min(1, Math.max(0, Number(opacity) || 0.25)),
+    color,
+    rotation: Number(rotation) || 0,
+    xPct: Math.min(1, Math.max(0, Number(xPct) || 0.5)),
+    yPct: Math.min(1, Math.max(0, Number(yPct) || 0.5)),
+  };
   const pdf = await loadPdf(data);
   const cache = new Map();
+
+  if (!String(safe.text).trim()) return pdf.save();
 
   for (const page of pdf.getPages()) {
     const { width, height } = page.getSize();
@@ -99,23 +120,7 @@ const watermark = async (data, options = {}) => {
     let embedded = cache.get(key);
     if (!embedded) {
       const canvas = new OffscreenCanvas(Math.ceil(width), Math.ceil(height));
-      const ctx = canvas.getContext('2d');
-      ctx.globalAlpha = opacity;
-      ctx.fillStyle = color;
-      const fontSize = Math.max(12, (width * fontSizePct) / 100);
-      ctx.font = `bold ${fontSize}px Helvetica, Arial, sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      if (diagonal) {
-        ctx.translate(width / 2, height / 2);
-        ctx.rotate(-Math.PI / 4);
-        const gap = fontSize * 2.4;
-        ctx.fillText(text, 0, 0);
-        ctx.fillText(text, gap, 0);
-        ctx.fillText(text, -gap, 0);
-      } else {
-        ctx.fillText(text, width / 2, height / 2);
-      }
+      drawWatermark(canvas.getContext('2d'), { width, height, ...safe });
       const blob = await canvas.convertToBlob({ type: 'image/png' });
       embedded = await pdf.embedPng(await blob.arrayBuffer());
       cache.set(key, embedded);
