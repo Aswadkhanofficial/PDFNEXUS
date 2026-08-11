@@ -12,7 +12,7 @@ export default function RequireResetWall({ children }) {
 
   if (user && profile === undefined) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center dark:bg-slate-950">
         <Loader2 className="w-8 h-8 text-purple-500 animate-spin" />
       </div>
     );

@@ -116,17 +116,17 @@ export default function Merge() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6">
-      <div className="max-w-xl w-full bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-2xl flex flex-col items-center gap-6">
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-900 dark:bg-slate-950 dark:text-white">
+      <div className="max-w-xl w-full bg-white border border-slate-200 rounded-xl p-8 shadow-2xl flex flex-col items-center gap-6 dark:bg-slate-900 dark:border-slate-800">
         
         <div className="text-center w-full flex flex-col items-center">
           <div className="flex justify-between w-full items-start mb-2">
             <h2 className="text-3xl font-extrabold tracking-tight">Merge PDFs</h2>
-            <div className="bg-slate-800 px-3 py-1 rounded-full text-xs font-semibold text-purple-400 border border-purple-500/30">
+            <div className="bg-slate-100 px-3 py-1 rounded-full text-xs font-semibold text-purple-600 border border-purple-500/30 dark:bg-slate-800 dark:text-purple-400">
               {paywall.isPremium ? 'Unlimited' : `${paywall.remaining} free ${paywall.isPremium ? '' : paywall.remaining === 1 ? 'use' : 'uses'} left`}
             </div>
           </div>
-          <p className="text-sm text-slate-400 mt-1 w-full text-left">
+          <p className="text-sm text-slate-600 mt-1 w-full text-left dark:text-slate-400">
             {step === 'upload' && "Upload files to combine."}
             {step === 'organize' && "Drag to reorder. The top file will appear first."}
             {step === 'done' && "Your files have been successfully merged."}
@@ -140,18 +140,18 @@ export default function Merge() {
               onDragLeave={onDragLeaveUpload}
               onDrop={onDropUpload}
               className={`w-full border-2 border-dashed transition-all duration-200 rounded-xl p-10 flex flex-col items-center justify-center cursor-pointer ${
-                isDragging ? 'border-purple-500 bg-purple-500/10' : 'border-slate-700 hover:border-purple-500 bg-slate-950/50'
+                isDragging ? 'border-purple-500 bg-purple-500/10' : 'border-slate-200 hover:border-purple-500 bg-slate-100/60 dark:border-slate-700 dark:bg-slate-950/50'
               }`}
             >
               <UploadCloud className={`w-12 h-12 mb-4 transition-colors ${isDragging ? 'text-purple-400' : 'text-purple-600'}`} />
-              <span className="font-medium text-slate-200">
+              <span className="font-medium text-slate-800 dark:text-slate-200">
                 {isDragging ? "Drop PDFs here..." : "Drag & drop PDFs here, or click to browse"}
               </span>
               <input type="file" multiple accept="application/pdf" className="hidden" onChange={handleFileChange} />
             </label>
 
             {files.length > 0 && (
-              <div className="bg-slate-800/50 p-4 rounded-lg flex items-center justify-between border border-slate-700">
+              <div className="bg-slate-100/80 p-4 rounded-lg flex items-center justify-between border border-slate-200 dark:bg-slate-800/50 dark:border-slate-700">
                 <span className="text-sm font-medium">{files.length} file(s) selected</span>
                 <button 
                   onClick={() => setStep('organize')}
@@ -164,7 +164,7 @@ export default function Merge() {
             )}
             
             {files.length === 1 && (
-              <div className="w-full flex items-center gap-2 text-amber-400 bg-amber-400/10 p-3 rounded-lg text-sm">
+              <div className="w-full flex items-center gap-2 text-amber-600 bg-amber-500/10 p-3 rounded-lg text-sm dark:text-amber-400">
                 <AlertCircle className="w-5 h-5 flex-shrink-0" />
                 <span>Add at least one more PDF to merge.</span>
               </div>
@@ -183,19 +183,19 @@ export default function Merge() {
                   onDragEnter={() => (dragOverItem.current = idx)}
                   onDragEnd={handleSort}
                   onDragOver={(e) => e.preventDefault()}
-                  className="flex items-center justify-between bg-slate-800 p-3 rounded-lg border border-slate-700 cursor-move hover:border-purple-500 transition-colors"
+                  className="flex items-center justify-between bg-slate-100 p-3 rounded-lg border border-slate-200 cursor-move hover:border-purple-500 transition-colors dark:bg-slate-800 dark:border-slate-700"
                 >
                   <div className="flex items-center gap-3 overflow-hidden">
                     <GripVertical className="w-5 h-5 text-slate-500 flex-shrink-0" />
-                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-700 text-xs font-bold text-slate-300 flex-shrink-0">
+                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-200 text-xs font-bold text-slate-700 flex-shrink-0 dark:bg-slate-700 dark:text-slate-300">
                       {idx + 1}
                     </div>
-                    <FileText className="w-5 h-5 text-blue-400 flex-shrink-0" />
-                    <span className="text-sm truncate text-slate-200 select-none">{file.name}</span>
+                    <FileText className="w-5 h-5 text-blue-500 flex-shrink-0 dark:text-blue-400" />
+                    <span className="text-sm truncate text-slate-800 select-none dark:text-slate-200">{file.name}</span>
                   </div>
                   <button 
                     onClick={() => removeFile(idx)}
-                    className="text-slate-400 hover:text-red-400 transition-colors p-1 z-10"
+                    className="text-slate-600 hover:text-red-500 transition-colors p-1 z-10 dark:text-slate-400 dark:hover:text-red-400"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -206,7 +206,7 @@ export default function Merge() {
             <div className="flex gap-3 mt-2">
               <button 
                 onClick={() => setStep('upload')}
-                className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-medium py-3.5 rounded-lg transition-colors"
+                className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium py-3.5 rounded-lg transition-colors dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white"
               >
                 Add More
               </button>
@@ -215,7 +215,7 @@ export default function Merge() {
                 disabled={isProcessing || files.length < 2}
                 className={`flex-[2] text-white font-bold py-3.5 rounded-lg flex items-center justify-center transition-all shadow-lg shadow-purple-600/20 ${
                   paywall.isLocked
-                    ? 'bg-slate-800 text-purple-400 cursor-not-allowed'
+                    ? 'bg-slate-200 text-purple-600 cursor-not-allowed dark:bg-slate-800 dark:text-purple-400'
                     : 'bg-purple-600 hover:bg-purple-700 disabled:opacity-50'
                 }`}
               >
@@ -231,7 +231,7 @@ export default function Merge() {
 
         {step === 'done' && downloadUrl && (
           <div className="w-full flex flex-col items-center gap-4 py-8 animate-in fade-in zoom-in duration-300">
-            <div className="w-20 h-20 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center mb-2">
+            <div className="w-20 h-20 bg-green-500/20 text-green-600 rounded-full flex items-center justify-center mb-2 dark:text-green-400">
               <Download className="w-10 h-10" />
             </div>
             <a 
@@ -248,8 +248,8 @@ export default function Merge() {
                 disabled={isSaving || isSaved}
                 className={`w-full flex items-center justify-center gap-2 font-bold py-3.5 rounded-lg transition-all ${
                   isSaved
-                    ? 'bg-slate-800 text-green-400 border border-green-500/30 cursor-default'
-                    : 'bg-slate-800 hover:bg-purple-600/20 text-white border border-slate-700 disabled:opacity-50'
+                    ? 'bg-slate-200 text-green-600 border border-green-500/30 cursor-default dark:bg-slate-800 dark:text-green-400'
+                    : 'bg-slate-100 hover:bg-purple-600/15 text-slate-800 border border-slate-200 disabled:opacity-50 dark:bg-slate-800 dark:hover:bg-purple-600/20 dark:text-white dark:border-slate-700'
                 }`}
               >
                 {isSaving ? (
@@ -263,19 +263,19 @@ export default function Merge() {
             ) : (
               <Link
                 to="/login"
-                className="w-full flex items-center justify-center gap-2 text-sm font-semibold text-slate-400 hover:text-purple-300 py-2 transition-colors"
+                className="w-full flex items-center justify-center gap-2 text-sm font-semibold text-slate-600 hover:text-purple-600 py-2 transition-colors dark:text-slate-400 dark:hover:text-purple-300"
               >
                 <CloudUpload className="w-4 h-4" /> Log in to save to your documents
               </Link>
             )}
 
             {saveError && (
-              <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg p-3 w-full text-center">
+              <p className="text-sm text-red-600 bg-red-500/10 border border-red-500/20 rounded-lg p-3 w-full text-center dark:text-red-400">
                 {saveError}
               </p>
             )}
 
-            <button onClick={resetFlow} className="text-sm font-medium text-slate-400 hover:text-white mt-2 transition-colors">
+            <button onClick={resetFlow} className="text-sm font-medium text-slate-600 hover:text-slate-900 mt-2 transition-colors dark:text-slate-400 dark:hover:text-white">
               Merge More Files
             </button>
           </div>

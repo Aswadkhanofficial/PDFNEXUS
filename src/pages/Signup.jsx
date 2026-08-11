@@ -61,14 +61,14 @@ export default function Signup() {
   if (isSuccess) {
     const providerLink = getEmailProviderLink();
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 text-slate-200">
-        <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-10 shadow-2xl flex flex-col items-center text-center animate-in zoom-in duration-300">
-          <div className="w-20 h-20 bg-green-500/10 text-green-400 rounded-full flex items-center justify-center mb-6 ring-4 ring-green-500/20">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 text-slate-800 dark:bg-slate-950 dark:text-slate-200">
+        <div className="max-w-md w-full bg-white border border-slate-200 rounded-2xl p-10 shadow-2xl flex flex-col items-center text-center animate-in zoom-in duration-300 dark:bg-slate-900 dark:border-slate-800">
+          <div className="w-20 h-20 bg-green-500/10 text-green-600 rounded-full flex items-center justify-center mb-6 ring-4 ring-green-500/20 dark:text-green-400">
             <CheckCircle2 className="w-10 h-10" />
           </div>
-          <h2 className="text-3xl font-extrabold text-white tracking-tight mb-2">Check your email</h2>
-          <p className="text-slate-400 mb-8">
-            We've sent a verification link to <span className="text-white font-medium">{formData.email}</span>. Please verify your account to unlock unlimited access.
+          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2 dark:text-white">Check your email</h2>
+          <p className="text-slate-600 mb-8 dark:text-slate-400">
+            We've sent a verification link to <span className="text-slate-900 font-medium dark:text-white">{formData.email}</span>. Please verify your account to unlock unlimited access.
           </p>
           
           {providerLink ? (
@@ -81,12 +81,12 @@ export default function Signup() {
               Open Inbox <ExternalLink className="w-4 h-4" />
             </a>
           ) : (
-            <p className="text-sm text-amber-400 bg-amber-400/10 p-3 rounded-lg mb-4 w-full">
+            <p className="text-sm text-amber-700 bg-amber-500/10 p-3 rounded-lg mb-4 w-full dark:text-amber-400">
               Please open your email app to verify your account.
             </p>
           )}
 
-          <button onClick={() => window.location.reload()} className="text-sm font-semibold text-slate-400 hover:text-white transition-colors">
+          <button onClick={() => window.location.reload()} className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors dark:text-slate-400 dark:hover:text-white">
             Didn't receive it? Try again
           </button>
         </div>
@@ -95,26 +95,26 @@ export default function Signup() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-slate-200">
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-800 dark:bg-slate-950 dark:text-slate-200">
       
       <div className="max-w-md w-full mb-6 bg-purple-500/10 border border-purple-500/20 rounded-xl p-4 flex items-start gap-3">
-        <div className="bg-purple-500/20 p-2 rounded-lg"><Lock className="w-5 h-5 text-purple-400" /></div>
+        <div className="bg-purple-500/20 p-2 rounded-lg"><Lock className="w-5 h-5 text-purple-600 dark:text-purple-400" /></div>
         <div>
-          <h3 className="text-purple-300 font-bold text-sm">Hit your 3-file limit?</h3>
-          <p className="text-slate-400 text-xs mt-1">Free users can only merge 3 times. Create an account now to completely remove all limits and save your work securely.</p>
+          <h3 className="text-purple-700 font-bold text-sm dark:text-purple-300">Hit your 3-file limit?</h3>
+          <p className="text-slate-600 text-xs mt-1 dark:text-slate-400">Free users can only merge 3 times. Create an account now to completely remove all limits and save your work securely.</p>
         </div>
       </div>
 
-      <div className="max-w-md w-full bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-8 shadow-2xl shadow-slate-950/60 relative overflow-hidden">
+      <div className="max-w-md w-full bg-white backdrop-blur-xl border border-slate-200 rounded-2xl p-8 shadow-2xl shadow-slate-200/60 relative overflow-hidden dark:bg-slate-900/80 dark:border-slate-800 dark:shadow-slate-950/60">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-violet-500 to-transparent"></div>
         
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-extrabold text-white tracking-tight">Create Account</h2>
-          <p className="text-sm text-slate-400 mt-2">Join PDFNexus for unlimited access.</p>
+          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight dark:text-white">Create Account</h2>
+          <p className="text-sm text-slate-600 mt-2 dark:text-slate-400">Join PDFNexus for unlimited access.</p>
         </div>
 
         {errorMsg && (
-          <div className="p-4 rounded-lg mb-6 text-sm font-medium bg-red-500/10 text-red-400 border border-red-500/20">
+          <div className="p-4 rounded-lg mb-6 text-sm font-medium bg-red-500/10 text-red-600 border border-red-500/20 dark:text-red-400">
             {errorMsg}
           </div>
         )}
@@ -122,12 +122,12 @@ export default function Signup() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="relative">
             <User className="w-5 h-5 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" />
-            <input type="text" name="name" value={formData.name} onChange={handleInputChange} placeholder="Full Name" required className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm" />
+            <input type="text" name="name" value={formData.name} onChange={handleInputChange} placeholder="Full Name" required className="w-full bg-slate-100 border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm dark:bg-slate-950 dark:border-slate-800" />
           </div>
           
           <div className="relative">
             <Mail className="w-5 h-5 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" />
-            <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="Email Address" required className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm" />
+            <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="Email Address" required className="w-full bg-slate-100 border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm dark:bg-slate-950 dark:border-slate-800" />
           </div>
 
           <div className="relative">
@@ -139,7 +139,7 @@ export default function Signup() {
               onChange={handleInputChange} 
               placeholder="Create Password" 
               required 
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-12 pr-12 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm" 
+              className="w-full bg-slate-100 border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-xl py-3 pl-12 pr-12 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm dark:bg-slate-950 dark:border-slate-800" 
             />
             <button 
               type="button" 
@@ -155,8 +155,8 @@ export default function Signup() {
           </button>
         </form>
 
-        <p className="text-center text-sm text-slate-400 mt-6">
-          Already have an account? <Link to="/login" className="text-purple-400 hover:text-purple-300 font-medium">Log in</Link>
+        <p className="text-center text-sm text-slate-600 mt-6 dark:text-slate-400">
+          Already have an account? <Link to="/login" className="text-purple-600 hover:text-purple-700 font-medium dark:text-purple-400 dark:hover:text-purple-300">Log in</Link>
         </p>
       </div>
     </div>

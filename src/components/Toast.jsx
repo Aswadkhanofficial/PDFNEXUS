@@ -4,9 +4,9 @@ import { AlertCircle, CheckCircle2, Info, X } from 'lucide-react';
 const ToastContext = createContext(null);
 
 const TOAST_STYLES = {
-  error: { icon: AlertCircle, iconClass: 'text-red-400' },
-  success: { icon: CheckCircle2, iconClass: 'text-green-400' },
-  info: { icon: Info, iconClass: 'text-purple-400' },
+  error: { icon: AlertCircle, iconClass: 'text-red-600 dark:text-red-400' },
+  success: { icon: CheckCircle2, iconClass: 'text-green-600 dark:text-green-400' },
+  info: { icon: Info, iconClass: 'text-purple-600 dark:text-purple-400' },
 };
 
 export function ToastProvider({ children }) {
@@ -45,14 +45,14 @@ export function ToastProvider({ children }) {
           return (
             <div
               key={t.id}
-              className="toast-in pointer-events-auto flex items-start gap-3 bg-slate-900 border border-slate-700 rounded-xl p-4 shadow-2xl"
+              className="toast-in pointer-events-auto flex items-start gap-3 bg-white border border-slate-200 rounded-xl p-4 shadow-2xl dark:bg-slate-900 dark:border-slate-700"
               role="status"
             >
               <Icon className={`w-5 h-5 flex-shrink-0 mt-0.5 ${iconClass}`} />
-              <p className="flex-1 text-sm text-slate-200 leading-snug">{t.message}</p>
+              <p className="flex-1 text-sm text-slate-800 leading-snug dark:text-slate-200">{t.message}</p>
               <button
                 onClick={() => dismiss(t.id)}
-                className="text-slate-500 hover:text-white transition-colors p-0.5"
+                className="text-slate-500 hover:text-slate-900 transition-colors p-0.5 dark:hover:text-white"
                 aria-label="Dismiss"
               >
                 <X className="w-4 h-4" />

@@ -35,7 +35,7 @@ export default function AuthGateHarness() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-8">
+    <div className="min-h-screen bg-slate-50 text-slate-900 p-8 dark:bg-slate-950 dark:text-white">
       <h1 className="text-xl font-bold">AuthGate Harness</h1>
       <p data-testid="auth-state">{user ? 'authed' : 'guest'}</p>
       <p data-testid="runs">runs:{runs}</p>
@@ -45,10 +45,10 @@ export default function AuthGateHarness() {
         <button type="button" onClick={runGated} className="bg-purple-600 rounded-lg py-2">
           Run gated action
         </button>
-        <button type="button" onClick={call429} className="bg-slate-700 rounded-lg py-2">
+        <button type="button" onClick={call429} className="bg-slate-200 rounded-lg py-2 dark:bg-slate-700">
           Trigger AI call (429)
         </button>
-        <button type="button" onClick={callOk} className="bg-slate-700 rounded-lg py-2">
+        <button type="button" onClick={callOk} className="bg-slate-200 rounded-lg py-2 dark:bg-slate-700">
           Trigger AI call (ok)
         </button>
       </div>

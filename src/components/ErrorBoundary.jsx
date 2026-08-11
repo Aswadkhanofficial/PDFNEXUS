@@ -19,17 +19,17 @@ export default class ErrorBoundary extends Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-slate-950 text-slate-200 flex flex-col items-center justify-center p-6">
-          <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-10 shadow-2xl flex flex-col items-center text-center">
-            <div className="w-16 h-16 bg-red-500/15 text-red-400 rounded-full flex items-center justify-center mb-4">
+        <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col items-center justify-center p-6 dark:bg-slate-950 dark:text-slate-200">
+          <div className="max-w-md w-full bg-white border border-slate-200 rounded-2xl p-10 shadow-2xl flex flex-col items-center text-center dark:bg-slate-900 dark:border-slate-800">
+            <div className="w-16 h-16 bg-red-500/15 text-red-600 rounded-full flex items-center justify-center mb-4 dark:text-red-400">
               <AlertTriangle className="w-8 h-8" />
             </div>
-            <h2 className="text-2xl font-extrabold text-white tracking-tight">Something went wrong</h2>
-            <p className="text-sm text-slate-400 mt-2 mb-6">
+            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight dark:text-white">Something went wrong</h2>
+            <p className="text-sm text-slate-600 mt-2 mb-6 dark:text-slate-400">
               An unexpected error occurred. Please try again.
             </p>
             {this.state.message && (
-              <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg p-3 mb-6 w-full break-words">
+              <p className="text-xs text-red-600 bg-red-500/10 border border-red-500/20 rounded-lg p-3 mb-6 w-full break-words dark:text-red-400">
                 {this.state.message}
               </p>
             )}

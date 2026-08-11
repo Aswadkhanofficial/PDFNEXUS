@@ -80,10 +80,10 @@ export default function Workspace() {
 
       <div className="relative mb-6 flex items-end justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-violet-400">
+          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-violet-600 dark:text-violet-400">
             Action Workspace
           </p>
-          <h1 className="mt-1.5 text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+          <h1 className="mt-1.5 text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             Pick a tool. <span className="gradient-text text-glow">Get it done.</span>
           </h1>
         </div>
@@ -99,14 +99,14 @@ export default function Workspace() {
           >
             <ArrowRight
               aria-hidden
-              className="absolute right-4 top-4 h-4 w-4 -translate-x-1 text-violet-400 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100"
+              className="absolute right-4 top-4 h-4 w-4 -translate-x-1 text-violet-600 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 dark:text-violet-400"
             />
             <span
               className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-tr ${tool.gradient} text-white shadow-lg shadow-violet-600/25 transition-transform duration-300 group-hover:rotate-3 group-hover:scale-110`}
             >
               <tool.icon aria-hidden className="h-6 w-6" />
             </span>
-            <h2 className="mt-4 text-sm sm:text-base font-bold text-slate-200 dark:text-slate-100">
+            <h2 className="mt-4 text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100">
               {tool.name}
             </h2>
             <p className="mt-1 text-xs leading-snug text-slate-500 dark:text-slate-400">
@@ -117,12 +117,12 @@ export default function Workspace() {
       </div>
 
       <section className="relative mt-8" aria-label="Recent files">
-        <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-slate-600 dark:text-slate-400">
           Recent Files
         </h2>
         <div className="glass rounded-2xl overflow-hidden">
           <div className="h-0.5 w-full bg-gradient-to-r from-violet-500 via-indigo-500 to-fuchsia-500" />
-          <div className="px-5 py-3 border-b border-slate-800 hidden sm:grid grid-cols-12 gap-4 text-[11px] uppercase tracking-wider font-bold text-slate-500">
+          <div className="px-5 py-3 border-b border-slate-200 hidden sm:grid grid-cols-12 gap-4 text-[11px] uppercase tracking-wider font-bold text-slate-500 dark:border-slate-800 dark:text-slate-400">
             <div className="col-span-5">File</div>
             <div className="col-span-2">Size</div>
             <div className="col-span-3">Created</div>
@@ -130,7 +130,7 @@ export default function Workspace() {
           </div>
 
           {isLoading ? (
-            <div className="divide-y divide-slate-800">
+            <div className="divide-y divide-slate-200 dark:divide-slate-800">
               {[0, 1, 2].map((i) => (
                 <div key={i} className="px-5 py-4 flex items-center gap-3">
                   <Skeleton className="w-9 h-9 rounded-lg flex-shrink-0" />
@@ -143,38 +143,38 @@ export default function Workspace() {
             </div>
           ) : documents.length === 0 ? (
             <div className="flex items-center justify-center gap-3 px-5 py-8 text-center">
-              <Inbox aria-hidden className="h-5 w-5 text-violet-400" />
-              <p className="text-sm text-slate-500">
+              <Inbox aria-hidden className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+              <p className="text-sm text-slate-600 dark:text-slate-400">
                 No files yet. Use a tool above and hit “Save to My Documents” — it will show up here.
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-slate-800">
+            <div className="divide-y divide-slate-200 dark:divide-slate-800">
               {documents.map((doc) => (
                 <div
                   key={doc.id}
                   className="px-5 py-3 flex flex-col sm:grid sm:grid-cols-12 gap-3 items-start sm:items-center hover:bg-violet-500/5 transition-colors"
                 >
                   <div className="col-span-5 flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 bg-gradient-to-tr from-violet-600/20 to-indigo-600/20 text-violet-400 rounded-lg flex items-center justify-center flex-shrink-0 ring-1 ring-violet-500/20">
+                    <div className="w-9 h-9 bg-gradient-to-tr from-violet-600/20 to-indigo-600/20 text-violet-600 rounded-lg flex items-center justify-center flex-shrink-0 ring-1 ring-violet-500/20 dark:text-violet-400">
                       <FileText className="w-4.5 h-4.5" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-slate-200 truncate">{doc.file_name}</p>
+                      <p className="text-sm font-semibold text-slate-800 truncate dark:text-slate-200">{doc.file_name}</p>
                       <p className="text-xs text-slate-500 flex items-center gap-1 sm:hidden">
                         <HardDrive className="w-3 h-3" /> {formatBytes(doc.file_size)}
                       </p>
                     </div>
                   </div>
-                  <div className="col-span-2 text-sm text-slate-400 hidden sm:block">{formatBytes(doc.file_size)}</div>
-                  <div className="col-span-3 text-sm text-slate-400 flex items-center gap-1.5">
+                  <div className="col-span-2 text-sm text-slate-600 hidden sm:block dark:text-slate-400">{formatBytes(doc.file_size)}</div>
+                  <div className="col-span-3 text-sm text-slate-600 flex items-center gap-1.5 dark:text-slate-400">
                     <Calendar className="w-3.5 h-3.5 text-slate-500" /> {formatDate(doc.created_at)}
                   </div>
                   <div className="col-span-2 flex items-center justify-start sm:justify-end gap-2">
                     <button
                       onClick={() => handleDownload(doc)}
                       disabled={downloadingId === doc.id}
-                      className="p-2 rounded-lg bg-slate-800/80 hover:bg-violet-600/20 text-slate-300 hover:text-violet-300 hover:shadow-[0_0_16px_-4px_rgba(139,92,246,0.5)] disabled:opacity-50 transition-all"
+                      className="p-2 rounded-lg bg-slate-200 hover:bg-violet-600/15 text-slate-700 hover:text-violet-600 hover:shadow-[0_0_16px_-4px_rgba(139,92,246,0.5)] disabled:opacity-50 transition-all dark:bg-slate-800/80 dark:hover:bg-violet-600/20 dark:text-slate-300 dark:hover:text-violet-300"
                       title="Download"
                     >
                       {downloadingId === doc.id ? (
@@ -186,7 +186,7 @@ export default function Workspace() {
                     <button
                       onClick={() => handleDelete(doc)}
                       disabled={deletingId === doc.id}
-                      className="p-2 rounded-lg bg-slate-800/80 hover:bg-red-500/20 text-slate-300 hover:text-red-400 disabled:opacity-50 transition-colors"
+                      className="p-2 rounded-lg bg-slate-200 hover:bg-red-500/15 text-slate-700 hover:text-red-500 disabled:opacity-50 transition-colors dark:bg-slate-800/80 dark:hover:bg-red-500/20 dark:text-slate-300 dark:hover:text-red-400"
                       title="Delete"
                     >
                       {deletingId === doc.id ? (

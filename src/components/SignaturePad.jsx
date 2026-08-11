@@ -275,8 +275,8 @@ const SignaturePad = forwardRef(function SignaturePad(
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-        <label className="relative inline-flex items-center gap-2 text-xs font-medium text-slate-300 cursor-pointer">
-          <span className="w-6 h-6 rounded-md border border-slate-700" style={{ backgroundColor: color }} />
+        <label className="relative inline-flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer dark:text-slate-300">
+          <span className="w-6 h-6 rounded-md border border-slate-300 dark:border-slate-700" style={{ backgroundColor: color }} />
           Color
           <input
             type="color"
@@ -286,7 +286,7 @@ const SignaturePad = forwardRef(function SignaturePad(
             aria-label="Pen color"
           />
         </label>
-        <label className="inline-flex items-center gap-2 text-xs font-medium text-slate-300">
+        <label className="inline-flex items-center gap-2 text-xs font-medium text-slate-700 dark:text-slate-300">
           Thickness
           <input
             type="range"
@@ -298,14 +298,14 @@ const SignaturePad = forwardRef(function SignaturePad(
             className="w-28 accent-purple-500 cursor-pointer"
             aria-label="Stroke thickness"
           />
-          <span className="w-9 tabular-nums text-slate-400">{width}px</span>
+          <span className="w-9 tabular-nums text-slate-600 dark:text-slate-400">{width}px</span>
         </label>
         <div className="ml-auto flex items-center gap-2">
           <button
             type="button"
             onClick={undo}
             disabled={!canUndo}
-            className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 border border-slate-700 text-slate-300 hover:text-white hover:border-slate-500 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 border border-slate-200 text-slate-700 hover:text-slate-900 hover:border-slate-400 disabled:opacity-40 disabled:cursor-not-allowed dark:border-slate-700 dark:text-slate-300 dark:hover:text-white dark:hover:border-slate-500"
           >
             <Undo2 className="w-3.5 h-3.5" /> Undo
           </button>
@@ -313,13 +313,13 @@ const SignaturePad = forwardRef(function SignaturePad(
             type="button"
             onClick={clear}
             disabled={!hasInk}
-            className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 border border-slate-700 text-slate-300 hover:text-red-400 hover:border-red-500/50 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 border border-slate-200 text-slate-700 hover:text-red-500 hover:border-red-500/50 disabled:opacity-40 disabled:cursor-not-allowed dark:border-slate-700 dark:text-slate-300 dark:hover:text-red-400 dark:hover:border-red-500/50"
           >
             <Eraser className="w-3.5 h-3.5" /> Clear
           </button>
         </div>
       </div>
-      <div className="border border-slate-800 rounded-xl bg-white overflow-hidden shadow-inner">
+      <div className="border border-slate-200 rounded-xl bg-white overflow-hidden shadow-inner dark:border-slate-800">
         <canvas
           ref={canvasRef}
           className="block w-full cursor-crosshair"

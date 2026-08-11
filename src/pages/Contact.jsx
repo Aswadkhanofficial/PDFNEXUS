@@ -37,12 +37,12 @@ export default function Contact() {
     <PageShell title="Contact Us" subtitle="We usually reply within one business day.">
       <div className="grid gap-4 sm:grid-cols-3">
         {channels.map((channel) => (
-          <div key={channel.title} className="bg-slate-950/60 border border-slate-800 rounded-xl p-5">
-            <div className="w-10 h-10 bg-purple-500/15 text-purple-400 rounded-lg flex items-center justify-center mb-3">
+          <div key={channel.title} className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm dark:bg-slate-950/60 dark:border-slate-800">
+            <div className="w-10 h-10 bg-purple-500/15 text-purple-600 rounded-lg flex items-center justify-center mb-3 dark:text-purple-400">
               <channel.icon className="w-5 h-5" />
             </div>
-            <h3 className="text-sm font-bold text-white">{channel.title}</h3>
-            <p className="text-sm text-slate-300 mt-1">{channel.value}</p>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">{channel.title}</h3>
+            <p className="text-sm text-slate-700 mt-1 dark:text-slate-300">{channel.value}</p>
             <p className="text-xs text-slate-500 mt-1">{channel.note}</p>
           </div>
         ))}
@@ -62,7 +62,7 @@ export default function Contact() {
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="Your name"
               required
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm"
+              className="w-full bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-xl py-3 px-4 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm dark:bg-slate-950 dark:border-slate-800"
             />
             <input
               type="email"
@@ -71,7 +71,7 @@ export default function Contact() {
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               placeholder="Email address"
               required
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm"
+              className="w-full bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-xl py-3 px-4 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm dark:bg-slate-950 dark:border-slate-800"
             />
           </div>
           <textarea
@@ -81,10 +81,10 @@ export default function Contact() {
             placeholder="How can we help?"
             rows={5}
             required
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm resize-y"
+            className="w-full bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-xl py-3 px-4 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm resize-y dark:bg-slate-950 dark:border-slate-800"
           />
           {status === 'sent' ? (
-            <div className="flex items-center gap-2 text-sm font-medium text-green-400 bg-green-500/10 border border-green-500/20 rounded-lg p-3 w-full justify-center">
+            <div className="flex items-center gap-2 text-sm font-medium text-green-600 bg-green-500/10 border border-green-500/20 rounded-lg p-3 w-full justify-center dark:text-green-400">
               <CheckCircle2 className="w-5 h-5" /> Thanks — we'll get back to you shortly.
             </div>
           ) : (

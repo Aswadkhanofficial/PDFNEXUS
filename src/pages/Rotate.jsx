@@ -140,20 +140,20 @@ export default function Rotate() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6">
-      <div className="max-w-3xl w-full bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-2xl flex flex-col items-center gap-6">
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-900 dark:bg-slate-950 dark:text-white">
+      <div className="max-w-3xl w-full bg-white border border-slate-200 rounded-xl p-8 shadow-2xl flex flex-col items-center gap-6 dark:bg-slate-900 dark:border-slate-800">
 
         <div className="text-center w-full flex flex-col items-center">
           <div className="flex justify-between w-full items-start mb-2">
             <h2 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
               <RotateCw className="w-8 h-8 text-purple-500" /> Rotate PDF
             </h2>
-            <div className="bg-slate-800 px-3 py-1 rounded-full text-xs font-semibold text-purple-400 border border-purple-500/30">
+            <div className="bg-slate-100 px-3 py-1 rounded-full text-xs font-semibold text-purple-600 border border-purple-500/30 dark:bg-slate-800 dark:text-purple-400">
               {paywall.isPremium ? 'Unlimited' : `${paywall.remaining} free uses left`}
             </div>
           </div>
-          <p className="text-sm text-slate-400 mt-1 w-full text-left">
-            {errorMsg && <span className="text-red-400 block mb-1">{errorMsg}</span>}
+          <p className="text-sm text-slate-600 mt-1 w-full text-left dark:text-slate-400">
+            {errorMsg && <span className="text-red-600 block mb-1 dark:text-red-400">{errorMsg}</span>}
             {step === 'upload' && 'Rotate individual pages or the whole document by 90, 180 or 270 degrees.'}
             {step === 'select' && 'Use the buttons below each page to rotate it. Preview updates instantly.'}
             {step === 'done' && 'Your pages were rotated successfully.'}
@@ -166,11 +166,11 @@ export default function Rotate() {
             onDragLeave={(e) => { e.preventDefault(); setIsDragging(false); }}
             onDrop={onDrop}
             className={`w-full border-2 border-dashed transition-all duration-200 rounded-xl p-10 flex flex-col items-center justify-center cursor-pointer ${
-              isDragging ? 'border-purple-500 bg-purple-500/10' : 'border-slate-700 hover:border-purple-500 bg-slate-950/50'
+              isDragging ? 'border-purple-500 bg-purple-500/10' : 'border-slate-200 hover:border-purple-500 bg-slate-100/60 dark:border-slate-700 dark:bg-slate-950/50'
             }`}
           >
             <UploadCloud className={`w-12 h-12 mb-4 transition-colors ${isDragging ? 'text-purple-400' : 'text-purple-600'}`} />
-            <span className="font-medium text-slate-200">
+            <span className="font-medium text-slate-800 dark:text-slate-200">
               {isDragging ? 'Drop PDF here...' : 'Drag & drop a PDF here, or click to browse'}
             </span>
             <input type="file" accept="application/pdf" className="hidden" onChange={handleFileChange} />
@@ -178,27 +178,27 @@ export default function Rotate() {
         )}
 
         {isLoading && (
-          <div className="flex items-center gap-3 text-sm text-slate-400">
-            <Loader2 className="w-5 h-5 animate-spin text-purple-400" /> Reading pages...
+          <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+            <Loader2 className="w-5 h-5 animate-spin text-purple-600 dark:text-purple-400" /> Reading pages...
           </div>
         )}
 
         {step === 'select' && !isLoading && (
           <div className="w-full flex flex-col gap-4">
             <div className="flex items-center justify-between gap-3">
-              <span className="text-sm font-medium text-slate-300">{thumbnails.length} page(s)</span>
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{thumbnails.length} page(s)</span>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => rotateAll(90)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-700 text-slate-300 hover:border-purple-500 hover:text-white transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:border-purple-500 hover:text-purple-600 transition-colors dark:border-slate-700 dark:text-slate-300 dark:hover:text-white"
                 >
                   <RotateCw className="w-3.5 h-3.5" /> All +90°
                 </button>
                 <button
                   type="button"
                   onClick={resetRotations}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-700 text-slate-300 hover:border-purple-500 hover:text-white transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:border-purple-500 hover:text-purple-600 transition-colors dark:border-slate-700 dark:text-slate-300 dark:hover:text-white"
                 >
                   <ResetIcon className="w-3.5 h-3.5" /> Reset
                 </button>
@@ -207,7 +207,7 @@ export default function Rotate() {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 max-h-[55vh] overflow-y-auto pr-1">
               {thumbnails.map((thumb, idx) => (
-                <div key={thumb.page} className="flex flex-col items-center gap-2 rounded-xl border border-slate-800 bg-slate-950/60 p-3">
+                <div key={thumb.page} className="flex flex-col items-center gap-2 rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-950/60">
                   <div className="w-full">
                     <div className={`w-full flex items-center justify-center overflow-hidden rounded-lg bg-white ${
                       rotations[idx] % 180 === 0 ? 'aspect-[1/1.414]' : 'aspect-[1.414/1]'
@@ -227,7 +227,7 @@ export default function Rotate() {
                         type="button"
                         onClick={() => rotatePage(idx, -90)}
                         title="Rotate counter-clockwise"
-                        className="p-1.5 rounded-md border border-slate-700 text-slate-400 hover:border-purple-500 hover:text-purple-300 transition-colors"
+                        className="p-1.5 rounded-md border border-slate-200 text-slate-600 hover:border-purple-500 hover:text-purple-600 transition-colors dark:border-slate-700 dark:text-slate-400 dark:hover:text-purple-300"
                       >
                         <RotateCcw className="w-3.5 h-3.5" />
                       </button>
@@ -235,7 +235,7 @@ export default function Rotate() {
                         type="button"
                         onClick={() => rotatePage(idx, 90)}
                         title="Rotate clockwise"
-                        className="p-1.5 rounded-md border border-slate-700 text-slate-400 hover:border-purple-500 hover:text-purple-300 transition-colors"
+                        className="p-1.5 rounded-md border border-slate-200 text-slate-600 hover:border-purple-500 hover:text-purple-600 transition-colors dark:border-slate-700 dark:text-slate-400 dark:hover:text-purple-300"
                       >
                         <RotateCw className="w-3.5 h-3.5" />
                       </button>
@@ -250,7 +250,7 @@ export default function Rotate() {
               disabled={isProcessing}
               className={`w-full text-white font-bold py-3.5 rounded-lg flex items-center justify-center transition-all ${
                 paywall.isLocked
-                  ? 'bg-slate-800 text-purple-400 cursor-not-allowed'
+                  ? 'bg-slate-200 text-purple-600 cursor-not-allowed dark:bg-slate-800 dark:text-purple-400'
                   : 'bg-purple-600 hover:bg-purple-700 disabled:opacity-50 shadow-lg shadow-purple-600/20'
               }`}
             >
@@ -267,7 +267,7 @@ export default function Rotate() {
 
         {step === 'done' && resultBytes && (
           <div className="w-full flex flex-col items-center gap-4 py-8 animate-in fade-in zoom-in duration-300">
-            <div className="w-20 h-20 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center mb-2">
+            <div className="w-20 h-20 bg-green-500/20 text-green-600 rounded-full flex items-center justify-center mb-2 dark:text-green-400">
               <FileText className="w-10 h-10" />
             </div>
             <a
@@ -284,8 +284,8 @@ export default function Rotate() {
                 disabled={isSaving || isSaved}
                 className={`w-full flex items-center justify-center gap-2 font-bold py-3.5 rounded-lg transition-all ${
                   isSaved
-                    ? 'bg-slate-800 text-green-400 border border-green-500/30 cursor-default'
-                    : 'bg-slate-800 hover:bg-purple-600/20 text-white border border-slate-700 disabled:opacity-50'
+                    ? 'bg-slate-200 text-green-600 border border-green-500/30 cursor-default dark:bg-slate-800 dark:text-green-400'
+                    : 'bg-slate-100 hover:bg-purple-600/15 text-slate-800 border border-slate-200 disabled:opacity-50 dark:bg-slate-800 dark:hover:bg-purple-600/20 dark:text-white dark:border-slate-700'
                 }`}
               >
                 {isSaving ? (
@@ -297,15 +297,15 @@ export default function Rotate() {
                 )}
               </button>
             ) : (
-              <Link to="/login" className="text-sm font-semibold text-slate-400 hover:text-purple-300 py-2 transition-colors">
+              <Link to="/login" className="text-sm font-semibold text-slate-600 hover:text-purple-600 py-2 transition-colors dark:text-slate-400 dark:hover:text-purple-300">
                 Log in to save to your documents
               </Link>
             )}
             {saveError && (
-              <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg p-3 w-full text-center">{saveError}</p>
+              <p className="text-sm text-red-600 bg-red-500/10 border border-red-500/20 rounded-lg p-3 w-full text-center dark:text-red-400">{saveError}</p>
             )}
 
-            <button onClick={resetFlow} className="text-sm font-medium text-slate-400 hover:text-white mt-2 transition-colors">
+            <button onClick={resetFlow} className="text-sm font-medium text-slate-600 hover:text-slate-900 mt-2 transition-colors dark:text-slate-400 dark:hover:text-white">
               Rotate Another PDF
             </button>
           </div>

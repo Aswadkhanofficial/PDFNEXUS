@@ -31,8 +31,8 @@ const LEGACY_REDIRECTS = { merge: '/merge', sign: '/sign', split: '/split', comp
 
 function PageLoader() {
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-      <div className="w-8 h-8 rounded-full border-2 border-slate-700 border-t-purple-500 animate-spin" />
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center dark:bg-slate-950">
+      <div className="w-8 h-8 rounded-full border-2 border-slate-200 border-t-purple-500 animate-spin dark:border-slate-700" />
     </div>
   );
 }
