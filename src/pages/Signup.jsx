@@ -122,12 +122,12 @@ export default function Signup() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="relative">
             <User className="w-5 h-5 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" />
-            <input type="text" name="name" value={formData.name} onChange={handleInputChange} placeholder="Full Name" required className="w-full bg-slate-100 border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm dark:bg-slate-950 dark:border-slate-800" />
+            <input type="text" name="name" value={formData.name} onChange={handleInputChange} placeholder="Full Name" required className="w-full bg-slate-100 border border-slate-200 text-slate-900 placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm dark:bg-slate-950 dark:border-slate-800" />
           </div>
           
           <div className="relative">
             <Mail className="w-5 h-5 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" />
-            <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="Email Address" required className="w-full bg-slate-100 border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm dark:bg-slate-950 dark:border-slate-800" />
+            <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="Email Address" required className="w-full bg-slate-100 border border-slate-200 text-slate-900 placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm dark:bg-slate-950 dark:border-slate-800" />
           </div>
 
           <div className="relative">
@@ -139,7 +139,7 @@ export default function Signup() {
               onChange={handleInputChange} 
               placeholder="Create Password" 
               required 
-              className="w-full bg-slate-100 border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-xl py-3 pl-12 pr-12 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm dark:bg-slate-950 dark:border-slate-800" 
+              className="w-full bg-slate-100 border border-slate-200 text-slate-900 placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500 rounded-xl py-3 pl-12 pr-12 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm dark:bg-slate-950 dark:border-slate-800" 
             />
             <button 
               type="button" 

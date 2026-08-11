@@ -73,7 +73,7 @@ export default function ForceReset() {
               placeholder="New password (min 8 characters)"
               minLength={8}
               required
-              className="w-full bg-slate-100 border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-xl py-3 pl-4 pr-12 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm dark:bg-slate-950 dark:border-slate-800"
+              className="w-full bg-slate-100 border border-slate-200 text-slate-900 placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500 rounded-xl py-3 pl-4 pr-12 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm dark:bg-slate-950 dark:border-slate-800"
             />
             <button
               type="button"
@@ -91,7 +91,7 @@ export default function ForceReset() {
             placeholder="Confirm new password"
             minLength={8}
             required
-            className="w-full bg-slate-100 border border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-xl py-3 pl-4 pr-4 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm dark:bg-slate-950 dark:border-slate-800"
+            className="w-full bg-slate-100 border border-slate-200 text-slate-900 placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500 rounded-xl py-3 pl-4 pr-4 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm dark:bg-slate-950 dark:border-slate-800"
           />
           <button
             type="submit"

@@ -4,7 +4,8 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import { Rnd } from 'react-rnd';
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import SignaturePad from '../components/SignaturePad';
-import { FileUp, Download, Eraser, ShieldCheck, PenTool, Image as ImageIcon, CloudUpload, Loader2, CheckCircle2, Lock, Move, RotateCcw, FileText } from 'lucide-react';
+import SignatureGenerator from '../components/SignatureGenerator';
+import { FileUp, Download, Eraser, ShieldCheck, PenTool, Image as ImageIcon, CloudUpload, Loader2, CheckCircle2, Lock, Move, RotateCcw, FileText, X, Sparkles, Heart } from 'lucide-react';
 import { PDFDocument } from 'pdf-lib';
 import { callWorker } from '../services/workerClient';
 import { useAuth } from '../context/AuthContext';
@@ -26,13 +27,14 @@ const HANDLE_STYLE = {
 
 export default function Sign() {
   const [selectedFile, setSelectedFile] = useState(null);
-  const [activeTab, setActiveTab] = useState('draw'); // 'draw' or 'upload'
+  const [activeTab, setActiveTab] = useState('draw'); // 'draw' | 'upload' | 'generate' | 'saved'
   const [sigImageFile, setSigImageFile] = useState(null);
   const [signatureDataUrl, setSignatureDataUrl] = useState(null);
   const [pdfMeta, setPdfMeta] = useState(null); // { width, height, pageCount } in PDF points
   const [sigPos, setSigPos] = useState(null); // { x, y } px inside preview wrapper
   const [sigSize, setSigSize] = useState(null); // { w, h } px display size
   const [isDraggingSig, setIsDraggingSig] = useState(false);
+  const [isSelected, setIsSelected] = useState(false);
   const [pageReady, setPageReady] = useState(false);
   const [isSigning, setIsSigning] = useState(false);
   const [signedPdfBytes, setSignedPdfBytes] = useState(null);
@@ -63,6 +65,7 @@ export default function Sign() {
           x: Math.round(PAGE_PREVIEW_WIDTH * 0.045),
           y: Math.round(displayH * 0.55),
         });
+        setIsSelected(true);
       }
     };
     img.src = signatureDataUrl;
@@ -97,6 +100,7 @@ export default function Sign() {
       setPageReady(false);
       setPdfMeta(null);
       placementRef.current = false;
+      setIsSelected(false);
       setSignedPdfBytes(null);
       setIsSaved(false);
       setSaveError('');
@@ -141,6 +145,16 @@ export default function Sign() {
       x: Math.round(PAGE_PREVIEW_WIDTH * 0.045),
       y: Math.round(displayH * 0.55),
     });
+    setIsSelected(true);
+  };
+
+  const handleDeleteSignature = () => {
+    setSignatureDataUrl(null);
+    setSigPos(null);
+    setSigSize(null);
+    setIsSelected(false);
+    setIsDraggingSig(false);
+    placementRef.current = false;
   };
 
   const handleApplySignature = async () => {
@@ -261,24 +275,42 @@ export default function Sign() {
         {/* Signature Input Mode Selection */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-slate-700 mb-2 dark:text-slate-300">2. Choose Signature Source</label>
-          <div className="grid grid-cols-2 gap-3 bg-slate-100 p-1.5 rounded-xl border border-slate-200 dark:bg-slate-950 dark:border-slate-800">
+          <div className="grid grid-cols-2 gap-3 bg-slate-100 p-1.5 rounded-xl border border-slate-200 dark:bg-slate-950 dark:border-slate-800 md:grid-cols-4">
             <button
               type="button"
               onClick={() => setActiveTab('draw')}
-              className={`py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+              className={`py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
                 activeTab === 'draw' ? 'bg-purple-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
               }`}
             >
-              <PenTool className="w-4 h-4" /> Draw Signature
+              <PenTool className="w-4 h-4" /> Draw
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('upload')}
-              className={`py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+              className={`py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
                 activeTab === 'upload' ? 'bg-purple-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
               }`}
             >
-              <ImageIcon className="w-4 h-4" /> Upload Image
+              <ImageIcon className="w-4 h-4" /> Upload
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('generate')}
+              className={`py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+                activeTab === 'generate' ? 'bg-purple-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+              }`}
+            >
+              <Sparkles className="w-4 h-4" /> Generate
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('saved')}
+              className={`py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+                activeTab === 'saved' ? 'bg-purple-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+              }`}
+            >
+              <Heart className="w-4 h-4" /> Saved
             </button>
           </div>
         </div>
@@ -295,6 +327,11 @@ export default function Sign() {
               </div>
               <SignaturePad ref={sigPadRef} onChange={captureDrawnSignature} />
             </div>
+          ) : activeTab === 'generate' || activeTab === 'saved' ? (
+            <SignatureGenerator
+              view={activeTab}
+              onUseSignature={(dataUrl) => setSignatureDataUrl(dataUrl)}
+            />
           ) : (
             <div>
               <label className="block text-xs text-slate-600 mb-2 dark:text-slate-400">Upload transparent PNG or JPG signature image</label>
@@ -324,7 +361,7 @@ export default function Sign() {
             </div>
             <div className="bg-slate-100/70 border border-slate-200 rounded-2xl p-3 shadow-inner dark:bg-slate-950/60 dark:border-slate-800">
               <div className="overflow-auto max-h-[70vh] rounded-xl">
-                <div ref={wrapperRef} className="relative mx-auto w-fit">
+                <div ref={wrapperRef} className="relative mx-auto w-fit" onClick={() => setIsSelected(false)}>
                   <Document
                     file={selectedFile}
                     onLoadError={() => toastError('Failed to render document preview.')}
@@ -355,10 +392,27 @@ export default function Sign() {
                       position={sigPos}
                       size={{ width: sigSize.w, height: sigSize.h }}
                       disableDragging={isSigning}
-                      enableResizing={!isSigning}
+                      enableResizing={
+                        isSelected && !isSigning
+                          ? {
+                              top: false,
+                              right: false,
+                              bottom: false,
+                              left: false,
+                              topRight: true,
+                              bottomRight: true,
+                              bottomLeft: true,
+                              topLeft: true,
+                            }
+                          : false
+                      }
+                      lockAspectRatio={sigSize.w / sigSize.h}
                       minWidth={40}
                       minHeight={24}
-                      onDragStart={() => setIsDraggingSig(true)}
+                      onDragStart={() => {
+                        setIsDraggingSig(true);
+                        setIsSelected(true);
+                      }}
                       onDragStop={(_, data) => {
                         setIsDraggingSig(false);
                         setSigPos({ x: data.x, y: data.y });
@@ -366,6 +420,10 @@ export default function Sign() {
                       onResizeStop={(_, __, ref, ___, position) => {
                         setSigPos({ x: position.x, y: position.y });
                         setSigSize({ w: ref.offsetWidth, h: ref.offsetHeight });
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsSelected(true);
                       }}
                       style={{ zIndex: 10, touchAction: 'none' }}
                       className={isDraggingSig ? 'cursor-grabbing' : 'cursor-move'}
@@ -377,13 +435,32 @@ export default function Sign() {
                         draggable={false}
                         className="w-full h-full max-w-none select-none pointer-events-none drop-shadow-lg"
                       />
+                      {isSelected && !isSigning && (
+                        <>
+                          <div className="absolute inset-0 border-2 border-dashed border-purple-500 rounded pointer-events-none" />
+                          <button
+                            type="button"
+                            aria-label="Remove signature"
+                            title="Remove signature"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteSignature();
+                            }}
+                            onPointerDown={(e) => e.stopPropagation()}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            className="absolute -top-3 -right-3 z-20 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center shadow-md ring-2 ring-white hover:bg-red-600 transition-colors cursor-pointer dark:ring-slate-900"
+                          >
+                            <X className="w-3.5 h-3.5" strokeWidth={3} />
+                          </button>
+                        </>
+                      )}
                     </Rnd>
                   )}
                 </div>
               </div>
               <div className="flex items-center justify-between mt-2.5 px-1">
                 <p className="text-xs text-slate-600 flex items-center gap-1.5 dark:text-slate-400">
-                  <Move className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" /> Drag to move, drag a corner or edge handle to resize
+                  <Move className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" /> Drag to move, drag a corner handle to resize proportionally. Click a signature to select it, or the X to remove it.
                 </p>
                 <button
                   type="button"

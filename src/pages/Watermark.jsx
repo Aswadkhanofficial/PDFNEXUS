@@ -182,8 +182,8 @@ export default function Watermark() {
                       </span>
                       <input
                         type="range"
-                        min={5}
-                        max={60}
+                        min={10}
+                        max={100}
                         value={opacity}
                         onChange={(e) => setOpacity(Number(e.target.value))}
                         className="mt-2 w-full accent-purple-500 cursor-pointer"

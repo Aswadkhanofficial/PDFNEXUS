@@ -157,8 +157,25 @@ export default function Header() {
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-tr from-violet-600 to-indigo-500 text-xs font-bold text-white">
                   {initial}
                 </span>
-                <span className="max-w-[9rem] truncate text-sm font-semibold text-slate-700 dark:text-slate-200">
-                  {user?.user_metadata?.full_name || user?.email}
+                <span className="flex min-w-0 items-center gap-1.5">
+                  <span className="max-w-[9rem] truncate text-sm font-semibold text-slate-700 dark:text-slate-200">
+                    {user?.user_metadata?.full_name || user?.email}
+                  </span>
+                  {isAdmin && (
+                    <svg
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-label="Verified admin"
+                      title="Verified admin"
+                      className="h-4 w-4 shrink-0 text-blue-500"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  )}
                 </span>
               </Link>
               <button
