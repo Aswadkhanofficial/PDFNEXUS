@@ -141,7 +141,8 @@ test('tools: compress, rotate, watermark, reorder + site parity', async ({ page 
   await page.goto('/watermark');
   await page.locator('input[accept="application/pdf"]').setInputFiles(sizesPath);
   await page.locator('input[type="text"]').fill('TOP SECRET');
-  await expect(page.getByText('TOP SECRET', { exact: true }).first()).toBeVisible();
+  await expect(page.locator('input[type="text"]')).toHaveValue('TOP SECRET');
+  await expect(page.locator('[data-testid="watermark-overlay"]')).toBeVisible();
   const wmDownload = page.waitForEvent('download');
   await page.getByRole('button', { name: /Apply Watermark/ }).click();
   await expect(page.getByText('Your watermark was applied successfully.')).toBeVisible({ timeout: 30000 });
