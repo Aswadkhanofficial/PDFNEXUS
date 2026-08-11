@@ -9,14 +9,19 @@ import { callWorker } from '../services/workerClient';
 import { usePaywall } from '../hooks/usePaywall.jsx';
 import { useAuth } from '../context/AuthContext';
 import { saveDocument } from '../services/documentService';
+import WatermarkPreview from '../components/WatermarkPreview';
 
 export default function Watermark() {
   const [file, setFile] = useState(null);
-  const [text, setText] = useState('CONFIDENTIAL');
-  const [opacity, setOpacity] = useState(25);
-  const [fontSizePct, setFontSizePct] = useState(8);
-  const [color, setColor] = useState('#000000');
-  const [diagonal, setDiagonal] = useState(true);
+  const [options, setOptions] = useState({
+    text: 'CONFIDENTIAL',
+    fontSizePct: 8,
+    opacity: 25,
+    color: '#000000',
+    rotation: -45,
+    xPct: 0.5,
+    yPct: 0.5,
+  });
   const [step, setStep] = useState('upload');
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -43,6 +48,7 @@ export default function Watermark() {
       }
       setFile(pdfFile);
       setErrorMsg('');
+      setOptions((prev) => ({ ...prev, xPct: 0.5, yPct: 0.5 }));
     }
   };
 
@@ -52,9 +58,25 @@ export default function Watermark() {
     if (e.dataTransfer.files && e.dataTransfer.files[0]) handleFileChange({ target: { files: e.dataTransfer.files } });
   };
 
+  const handlePositionChange = ({ xPct, yPct }) => {
+    setOptions((prev) => ({ ...prev, xPct, yPct }));
+  };
+
+  const handleReset = () => {
+    setOptions((prev) => ({
+      ...prev,
+      fontSizePct: 8,
+      opacity: 25,
+      color: '#000000',
+      rotation: -45,
+      xPct: 0.5,
+      yPct: 0.5,
+    }));
+  };
+
   const handleApply = async () => {
     if (!file) return;
-    const trimmed = text.trim();
+    const trimmed = options.text.trim();
     if (!trimmed) {
       setErrorMsg('Enter the watermark text first.');
       return;
@@ -63,18 +85,20 @@ export default function Watermark() {
     setErrorMsg('');
     try {
       const bytes = await file.arrayBuffer();
-      const options = {
+      const exportOptions = {
         text: trimmed,
-        fontSizePct: Number(fontSizePct),
-        opacity: opacity / 100,
-        color,
-        diagonal,
+        fontSizePct: Number(options.fontSizePct),
+        opacity: Number(options.opacity) / 100,
+        color: options.color,
+        rotation: Number(options.rotation),
+        xPct: Number(options.xPct),
+        yPct: Number(options.yPct),
       };
       let outBytes;
       try {
-        outBytes = await callWorker('watermark', { data: bytes, options }, [bytes]);
+        outBytes = await callWorker('watermark', { data: bytes, options: exportOptions }, [bytes]);
       } catch {
-        outBytes = await watermarkPdf(await file.arrayBuffer(), options);
+        outBytes = await watermarkPdf(await file.arrayBuffer(), exportOptions);
       }
       setResultBytes(outBytes);
       setResultName(`watermarked-${file.name}`);
@@ -114,7 +138,7 @@ export default function Watermark() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-900 dark:bg-slate-950 dark:text-white">
-      <div className="max-w-xl w-full bg-white border border-slate-200 rounded-xl p-8 shadow-2xl flex flex-col items-center gap-6 dark:bg-slate-900 dark:border-slate-800">
+      <div className="max-w-5xl w-full bg-white border border-slate-200 rounded-xl p-8 shadow-2xl flex flex-col items-center gap-6 dark:bg-slate-900 dark:border-slate-800">
 
         <div className="text-center w-full flex flex-col items-center">
           <div className="flex justify-between w-full items-start mb-2">
@@ -162,90 +186,96 @@ export default function Watermark() {
                   </span>
                 </div>
 
-                <div className="flex flex-col gap-4 bg-slate-100/60 border border-slate-200 rounded-xl p-4 dark:bg-slate-950/50 dark:border-slate-800">
-                  <label className="block">
-                    <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Watermark text</span>
-                    <input
-                      type="text"
-                      value={text}
-                      maxLength={40}
-                      onChange={(e) => setText(e.target.value)}
-                      className="mt-1.5 w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-purple-500 focus:outline-none dark:bg-slate-900 dark:border-slate-700 dark:text-white"
-                    />
-                  </label>
+                <div className="grid lg:grid-cols-2 gap-6">
+                  <div className="flex flex-col gap-4">
+                    <label className="block">
+                      <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Watermark text</span>
+                      <input
+                        type="text"
+                        value={options.text}
+                        maxLength={40}
+                        onChange={(e) => setOptions((prev) => ({ ...prev, text: e.target.value }))}
+                        className="mt-1.5 w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-purple-500 focus:outline-none dark:bg-slate-900 dark:border-slate-700 dark:text-white"
+                      />
+                    </label>
 
-                  <div className="grid grid-cols-2 gap-4">
                     <label className="block">
                       <span className="text-xs font-semibold text-slate-600 flex justify-between dark:text-slate-400">
                         <span>Opacity</span>
-                        <span className="tabular-nums text-purple-600 dark:text-purple-400">{opacity}%</span>
+                        <span className="tabular-nums text-purple-600 dark:text-purple-400">{options.opacity}%</span>
                       </span>
                       <input
                         type="range"
                         min={10}
                         max={100}
-                        value={opacity}
-                        onChange={(e) => setOpacity(Number(e.target.value))}
+                        value={options.opacity}
+                        onChange={(e) => setOptions((prev) => ({ ...prev, opacity: Number(e.target.value) }))}
                         className="mt-2 w-full accent-purple-500 cursor-pointer"
                       />
                     </label>
+
                     <label className="block">
                       <span className="text-xs font-semibold text-slate-600 flex justify-between dark:text-slate-400">
                         <span>Size</span>
-                        <span className="tabular-nums text-purple-600 dark:text-purple-400">{fontSizePct}% of width</span>
+                        <span className="tabular-nums text-purple-600 dark:text-purple-400">{options.fontSizePct}% of width</span>
                       </span>
                       <input
                         type="range"
                         min={3}
                         max={14}
                         step={0.5}
-                        value={fontSizePct}
-                        onChange={(e) => setFontSizePct(Number(e.target.value))}
+                        value={options.fontSizePct}
+                        onChange={(e) => setOptions((prev) => ({ ...prev, fontSizePct: Number(e.target.value) }))}
                         className="mt-2 w-full accent-purple-500 cursor-pointer"
                       />
                     </label>
-                  </div>
 
-                  <div className="flex flex-wrap items-center gap-4">
-                    <label className="flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer dark:text-slate-400">
-                      <span>Color</span>
-                      <span className="relative inline-flex w-8 h-8 rounded-lg border border-slate-300 overflow-hidden dark:border-slate-700">
-                        <input
-                          type="color"
-                          value={color}
-                          onChange={(e) => setColor(e.target.value)}
-                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                          aria-label="Watermark color"
-                        />
-                        <span className="w-full h-full" style={{ backgroundColor: color }} />
+                    <label className="block">
+                      <span className="text-xs font-semibold text-slate-600 flex justify-between dark:text-slate-400">
+                        <span>Rotation</span>
+                        <span className="tabular-nums text-purple-600 dark:text-purple-400">{options.rotation}°</span>
                       </span>
+                      <input
+                        type="range"
+                        min={-90}
+                        max={90}
+                        step={1}
+                        value={options.rotation}
+                        onChange={(e) => setOptions((prev) => ({ ...prev, rotation: Number(e.target.value) }))}
+                        className="mt-2 w-full accent-purple-500 cursor-pointer"
+                      />
                     </label>
-                    <button
-                      type="button"
-                      onClick={() => setDiagonal((d) => !d)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
-                        diagonal
-                          ? 'border-purple-500 bg-purple-600/20 text-purple-700 dark:text-purple-200'
-                          : 'border-slate-200 text-slate-700 hover:border-slate-400 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-500'
-                      }`}
-                    >
-                      {diagonal ? 'Diagonal' : 'Horizontal'}
-                    </button>
+
+                    <div className="flex flex-wrap items-center gap-4">
+                      <label className="flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer dark:text-slate-400">
+                        <span>Color</span>
+                        <span className="relative inline-flex w-8 h-8 rounded-lg border border-slate-300 overflow-hidden dark:border-slate-700">
+                          <input
+                            type="color"
+                            value={options.color}
+                            onChange={(e) => setOptions((prev) => ({ ...prev, color: e.target.value }))}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            aria-label="Watermark color"
+                          />
+                          <span className="w-full h-full" style={{ backgroundColor: options.color }} />
+                        </span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleReset}
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:border-slate-400 transition-colors dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-500"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5 inline mr-1" /> Reset
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="rounded-lg border border-slate-200 bg-white p-6 flex items-center justify-center overflow-hidden dark:border-slate-800">
-                    <span
-                      className="font-bold select-none whitespace-nowrap"
-                      style={{
-                        color,
-                        opacity: opacity / 100,
-                        fontSize: `${Math.max(12, Math.round(280 * (fontSizePct / 100)))}px`,
-                        transform: diagonal ? 'rotate(-45deg)' : 'none',
-                      }}
-                    >
-                      {text.trim() || 'CONFIDENTIAL'}
-                    </span>
-                  </div>
+                  <WatermarkPreview
+                    key={`${file.name}-${file.size}`}
+                    file={file}
+                    options={options}
+                    onPositionChange={handlePositionChange}
+                  />
                 </div>
 
                 <button

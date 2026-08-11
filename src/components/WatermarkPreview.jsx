@@ -142,7 +142,7 @@ export default function WatermarkPreview({ file, options, onPositionChange }) {
             className="absolute inset-0 w-full h-full pointer-events-none rounded-xl"
             style={{ width: '100%', height: '100%' }}
           />
-          {posPx && (
+          {posPx && wrapSize.w === pageWidth && (
             <Rnd
               bounds="parent"
               position={posPx}
