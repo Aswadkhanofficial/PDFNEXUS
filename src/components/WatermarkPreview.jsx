@@ -153,7 +153,15 @@ export default function WatermarkPreview({ file, options, onPositionChange }) {
               style={{ zIndex: 10, touchAction: 'none' }}
               className={isDragging ? 'cursor-grabbing' : 'cursor-move'}
             >
-              <div className="absolute inset-0 border-2 border-dashed border-purple-500/70 rounded pointer-events-none" />
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  transform: `rotate(${options.rotation ?? 0}deg)`,
+                  transformOrigin: 'center center',
+                }}
+              >
+                <div className="absolute inset-0 border-2 border-dashed border-purple-500/70 rounded" />
+              </div>
             </Rnd>
           )}
         </div>
