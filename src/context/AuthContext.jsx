@@ -49,7 +49,10 @@ export function AuthProvider({ children }) {
       currentUserIdRef.current = nextUser?.id ?? null;
       setUser(nextUser);
       setLoading(false);
-      if (nextUser && ['SIGNED_IN', 'INITIAL_SESSION', 'USER_UPDATED', 'TOKEN_REFRESHED'].includes(event)) {
+      if (event === 'SIGNED_IN' && nextUser) {
+        syncProfileFromMetadata(nextUser);
+        if (window.location.pathname !== '/') window.location.assign('/');
+      } else if (nextUser && ['INITIAL_SESSION', 'USER_UPDATED', 'TOKEN_REFRESHED'].includes(event)) {
         syncProfileFromMetadata(nextUser);
       }
     });
