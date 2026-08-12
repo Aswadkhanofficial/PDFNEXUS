@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './components/Toast';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
+import PublicOnlyRoute from './components/PublicOnlyRoute';
 import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
 import AuthGateHarness from './testing/AuthGateHarness';
@@ -72,8 +73,8 @@ export default function App() {
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/contact" element={<Contact />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
+              <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
+              <Route path="/signup" element={<PublicOnlyRoute><Signup /></PublicOnlyRoute>} />
               {import.meta.env.DEV && (
                 <Route path="/__dev/authgate" element={<AuthGateHarness />} />
               )}
