@@ -1,5 +1,6 @@
 import Header from '../components/Header';
 import RequireResetWall from '../components/RequireResetWall';
+import Footer from '../components/landing/Footer';
 
 export default function MainLayout({ children }) {
   return (
@@ -8,6 +9,7 @@ export default function MainLayout({ children }) {
       <main className="flex flex-1 flex-col">
         <RequireResetWall>{children}</RequireResetWall>
       </main>
+      <Footer />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   Users, Ban, ShieldCheck, KeyRound, Loader2, RefreshCw, Copy, CheckCircle2,
-  FileText, HardDrive, Activity, UserPlus, ShieldAlert, TrendingUp,
+  FileText, HardDrive, Activity, UserPlus, ShieldAlert, TrendingUp, Mail, Reply, Trash2,
 } from 'lucide-react';
 import { supabase } from '../services/supabaseClient';
 import { useToast } from '../components/Toast';
@@ -10,6 +10,15 @@ const ROW_COLS = 'id, email, full_name, is_banned, requires_password_reset, crea
 
 const formatDate = (iso) =>
   new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+const formatDateTime = (iso) =>
+  new Date(iso).toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
 
 const formatBytes = (bytes) => {
   if (!bytes) return '0 B';
@@ -22,6 +31,7 @@ export default function AdminDashboard() {
   const { error: toastError, success: toastSuccess } = useToast();
   const [stats, setStats] = useState(null);
   const [users, setUsers] = useState([]);
+  const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [denied, setDenied] = useState(false);
   const [busyId, setBusyId] = useState(null);
@@ -33,6 +43,10 @@ export default function AdminDashboard() {
   const isSuperAdminRow = (row) =>
     (stats?.admin_users ?? []).some((a) => a.user_id === row.id && a.role_type === 'super_admin');
   const canModerateRow = (row) => !isSuperAdminRow(row) || isSuperAdmin;
+
+  const todayMessagesCount = messages.filter(
+    (m) => new Date(m.created_at).toDateString() === new Date().toDateString()
+  ).length;
 
   // Single source of truth: the admin_roles-gated security-definer RPC.
   // Non-admins get an access-denied error and never receive any data.
@@ -62,15 +76,31 @@ export default function AdminDashboard() {
       });
   }, [toastError]);
 
+  const loadMessages = useCallback(() => {
+    supabase
+      .from('contact_messages')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .then(({ data, error }) => {
+        if (error) {
+          toastError(`Could not load messages: ${error.message}`);
+          return;
+        }
+        setMessages(data ?? []);
+      });
+  }, [toastError]);
+
   useEffect(() => {
     loadStats();
     loadUsers();
-  }, [loadStats, loadUsers]);
+    loadMessages();
+  }, [loadStats, loadUsers, loadMessages]);
 
   const refreshAll = () => {
     setLoading(true);
     loadStats();
     loadUsers();
+    loadMessages();
   };
 
   const toggleBan = async (row) => {
@@ -125,6 +155,16 @@ export default function AdminDashboard() {
     } catch {
       toastError('Could not copy — select and copy the password manually.');
     }
+  };
+
+  const deleteMessage = async (messageId) => {
+    const { error } = await supabase.from('contact_messages').delete().eq('id', messageId);
+    if (error) {
+      toastError(error.message);
+      return;
+    }
+    setMessages((prev) => prev.filter((m) => m.id !== messageId));
+    toastSuccess('Message deleted');
   };
 
   const statCards = stats
@@ -284,6 +324,65 @@ export default function AdminDashboard() {
             </section>
           </>
         ) : null}
+
+        <section aria-label="Contact messages" className="mt-8">
+          <h2 className="mb-3 flex items-center text-xs font-semibold uppercase tracking-[0.3em] text-slate-600 dark:text-slate-400">
+            <Mail className="h-4 w-4 mr-2" /> Contact Messages
+            {todayMessagesCount > 0 && (
+              <span className="ml-2 rounded-full bg-emerald-500/15 text-emerald-600 px-2 py-0.5 text-[10px] font-bold dark:text-emerald-400">
+                +{todayMessagesCount} Today
+              </span>
+            )}
+          </h2>
+          {messages.length === 0 ? (
+            <div className="rounded-2xl border border-slate-200 bg-white py-16 text-center dark:border-slate-800 dark:bg-slate-900/60">
+              <Mail className="mx-auto h-8 w-8 text-slate-400 dark:text-slate-600" />
+              <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">No messages found.</p>
+            </div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2">
+              {messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900/60"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="truncate font-bold text-slate-900 dark:text-white">{msg.name}</p>
+                      <a
+                        href={`mailto:${msg.email}`}
+                        className="block truncate text-sm text-purple-600 hover:text-purple-700 transition-colors dark:text-purple-400 dark:hover:text-purple-300"
+                      >
+                        {msg.email}
+                      </a>
+                    </div>
+                    <span className="shrink-0 text-xs text-slate-500 dark:text-slate-400">
+                      {msg.created_at ? formatDateTime(msg.created_at) : '—'}
+                    </span>
+                  </div>
+                  <p className="mt-3 break-words text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                    {msg.message}
+                  </p>
+                  <div className="mt-4 flex items-center justify-end gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
+                    <button
+                      type="button"
+                      onClick={() => deleteMessage(msg.id)}
+                      className="flex items-center gap-1.5 rounded-lg text-red-500 hover:bg-red-500/10 px-3 py-2 text-xs font-bold transition-colors dark:text-red-400"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" /> Delete
+                    </button>
+                    <a
+                      href={`mailto:${msg.email}`}
+                      className="flex items-center gap-1.5 rounded-lg bg-purple-500/15 text-purple-700 hover:bg-purple-500/25 px-3 py-2 text-xs font-bold transition-colors dark:text-purple-300"
+                    >
+                      <Reply className="w-3.5 h-3.5" /> Reply
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
         <section aria-label="User management" className="mt-8">
           <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-slate-600 dark:text-slate-400">

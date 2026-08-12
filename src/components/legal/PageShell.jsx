@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { FileStack, ArrowLeft } from 'lucide-react';
-import LegalFooter from './LegalFooter';
 
 export function LegalSection({ title, children }) {
   return (
@@ -35,8 +34,6 @@ export default function PageShell({ title, subtitle, children }) {
           {children}
         </div>
       </main>
-
-      <LegalFooter />
     </div>
   );
 }

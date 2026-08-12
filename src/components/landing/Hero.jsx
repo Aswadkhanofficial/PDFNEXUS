@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, CircleCheck, FileStack, PenTool, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowDown, ArrowRight, CircleCheck, FileStack, LayoutGrid, ShieldCheck, Sparkles } from 'lucide-react';
 
 const stats = [
   { value: '8', label: 'free PDF tools' },
@@ -131,15 +131,15 @@ export default function Hero() {
           className="animate-rise mt-10 flex w-full max-w-md flex-col items-center justify-center gap-4 sm:max-w-none sm:flex-row"
           style={{ animationDelay: '0.3s' }}
         >
-          <Link to="/tools/merge" className="btn-primary group w-full sm:w-auto">
-            <FileStack aria-hidden className="h-5 w-5 transition-transform duration-300 group-hover:rotate-12" />
-            Merge PDFs Now
+          <Link to="/workspace" className="btn-primary group w-full sm:w-auto">
+            <LayoutGrid aria-hidden className="h-5 w-5 transition-transform duration-300 group-hover:rotate-12" />
+            Open Workspace
             <ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
-          <Link to="/tools/sign" className="btn-secondary group w-full sm:w-auto">
-            <PenTool aria-hidden className="h-5 w-5 text-violet-500 transition-transform duration-300 group-hover:-rotate-12 dark:text-violet-400" />
-            E-Sign Document
-          </Link>
+          <a href="#tools" className="btn-secondary group w-full sm:w-auto">
+            Explore All Tools
+            <ArrowDown aria-hidden className="h-4 w-4 transition-transform duration-300 group-hover:translate-y-1" />
+          </a>
         </div>
 
         <p
