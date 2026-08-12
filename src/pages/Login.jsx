@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Loader2, ArrowRight, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import { supabase, REMEMBER_ME_KEY } from '../services/supabaseClient';
+import GoogleButton from '../components/GoogleButton';
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -10,10 +11,33 @@ export default function Login() {
     () => localStorage.getItem(REMEMBER_ME_KEY) !== 'false'
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const navigate = useNavigate();
 
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) navigate('/', { replace: true });
+    });
+  }, [navigate]);
+
   const handleInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    setErrorMsg('');
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${window.location.origin}/login` },
+      });
+      if (error) throw error;
+    } catch (error) {
+      setErrorMsg(error.message);
+      setIsGoogleLoading(false);
+    }
+  };
 
   const handleRememberMeChange = (e) => {
     const checked = e.target.checked;
@@ -75,6 +99,14 @@ export default function Login() {
             {errorMsg}
           </div>
         )}
+
+        <GoogleButton onClick={handleGoogleSignIn} loading={isGoogleLoading} disabled={isLoading} />
+
+        <div className="flex items-center gap-3 my-6">
+          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+          <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">or</span>
+          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+        </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="relative">

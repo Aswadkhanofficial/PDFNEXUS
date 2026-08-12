@@ -1,9 +1,9 @@
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { supabase } from '../services/supabaseClient';
 
 const AuthContext = createContext(null);
 
-const PROFILE_COLS = 'id, email, is_banned, requires_password_reset, premium_until, created_at';
+const PROFILE_COLS = 'id, email, full_name, avatar_url, is_banned, requires_password_reset, premium_until, created_at';
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -12,6 +12,31 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(undefined);
   const [isAdmin, setIsAdmin] = useState(false);
   const [prevUserId, setPrevUserId] = useState(null);
+  const currentUserIdRef = useRef(null);
+
+  // Capture OAuth (Google) display name + avatar from user metadata and sync
+  // them into public.profiles so the profile row is always up to date.
+  const syncProfileFromMetadata = useCallback(async (authUser) => {
+    if (!authUser) return;
+    const metadata = authUser.user_metadata ?? {};
+    const full_name = metadata.full_name || metadata.name || null;
+    const avatar_url = metadata.avatar_url || metadata.picture || null;
+
+    try {
+      await supabase.from('profiles').upsert(
+        { id: authUser.id, full_name, avatar_url, updated_at: new Date().toISOString() },
+        { onConflict: 'id' }
+      );
+      const { data } = await supabase
+        .from('profiles')
+        .select(PROFILE_COLS)
+        .eq('id', authUser.id)
+        .maybeSingle();
+      if (currentUserIdRef.current === authUser.id) setProfile(data ?? null);
+    } catch {
+      // Non-fatal: profile sync is best-effort; the next session event retries.
+    }
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -19,13 +44,18 @@ export function AuthProvider({ children }) {
       setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      const nextUser = session?.user ?? null;
+      currentUserIdRef.current = nextUser?.id ?? null;
+      setUser(nextUser);
       setLoading(false);
+      if (nextUser && ['SIGNED_IN', 'INITIAL_SESSION', 'USER_UPDATED', 'TOKEN_REFRESHED'].includes(event)) {
+        syncProfileFromMetadata(nextUser);
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [syncProfileFromMetadata]);
 
   // Reset profile/admin state as the session switches; loading resumes.
   const userId = user?.id ?? null;

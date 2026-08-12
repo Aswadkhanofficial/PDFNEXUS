@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Lock, User, Loader2, CheckCircle2, ExternalLink, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../services/supabaseClient';
+import GoogleButton from '../components/GoogleButton';
 
 const PASSWORD_ERROR =
   'Password must be at least 6 characters long and include a special character (e.g., @, #, *).';
-const PASSWORD_REGEX = /^(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{6,}$/;
+const PASSWORD_REGEX = /^(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{6,}$/;
 
 const validatePassword = (password) => PASSWORD_REGEX.test(password);
 
@@ -17,10 +18,33 @@ export default function Signup() {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) window.location.assign('/');
+    });
+  }, []);
+
   const handleInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    setErrorMsg('');
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${window.location.origin}/signup` },
+      });
+      if (error) throw error;
+    } catch (error) {
+      setErrorMsg(error.message);
+      setIsGoogleLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -118,6 +142,14 @@ export default function Signup() {
             {errorMsg}
           </div>
         )}
+
+        <GoogleButton onClick={handleGoogleSignIn} loading={isGoogleLoading} disabled={isLoading} />
+
+        <div className="flex items-center gap-3 my-6">
+          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+          <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">or</span>
+          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+        </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="relative">
