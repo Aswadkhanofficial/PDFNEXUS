@@ -24,6 +24,7 @@ export default function Login() {
   const handleInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleGoogleSignIn = async () => {
+    console.log("👉 Google Auth Function Called!");
     setIsGoogleLoading(true);
     setErrorMsg('');
 

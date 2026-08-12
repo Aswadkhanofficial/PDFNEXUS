@@ -27,10 +27,6 @@ export function AuthProvider({ children }) {
     const avatar_url = metadata.avatar_url || metadata.picture || null;
 
     try {
-      await supabase.from('profiles').upsert(
-        { id: authUser.id, full_name, avatar_url, updated_at: new Date().toISOString() },
-        { onConflict: 'id' }
-      );
       const { data } = await supabase
         .from('profiles')
         .select(PROFILE_COLS)
