@@ -17,6 +17,11 @@ export function AuthProvider({ children }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [prevUserId, setPrevUserId] = useState(null);
   const currentUserIdRef = useRef(null);
+  // true once any session has been observed on this page load. Gates the
+  // SIGNED_IN redirect so it runs ONLY on an explicit login (signed-out ->
+  // signed-in), never on repeat SIGNED_IN events that fire after token
+  // refresh when the tab regains focus.
+  const hadSessionRef = useRef(false);
 
   // Capture OAuth (Google) display name + avatar from user metadata and sync
   // them into public.profiles so the profile row is always up to date.
@@ -27,6 +32,20 @@ export function AuthProvider({ children }) {
     const avatar_url = metadata.avatar_url || metadata.picture || null;
 
     try {
+      if (full_name || avatar_url) {
+        const { data: existing } = await supabase
+          .from('profiles')
+          .select('full_name, avatar_url')
+          .eq('id', authUser.id)
+          .maybeSingle();
+        const patch = {};
+        if (full_name && !existing?.full_name) patch.full_name = full_name;
+        if (avatar_url && !existing?.avatar_url) patch.avatar_url = avatar_url;
+        if (Object.keys(patch).length) {
+          await supabase.from('profiles').update(patch).eq('id', authUser.id);
+        }
+      }
+
       const { data } = await supabase
         .from('profiles')
         .select(PROFILE_COLS)
@@ -51,6 +70,7 @@ export function AuthProvider({ children }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (cancelled) return;
       currentUserIdRef.current = session?.user?.id ?? null;
+      if (session) hadSessionRef.current = true;
       setUser(session?.user ?? null);
       if (!session && AUTH_CALLBACK_RE.test(window.location.hash)) return;
       setLoading(false);
@@ -61,12 +81,19 @@ export function AuthProvider({ children }) {
       currentUserIdRef.current = nextUser?.id ?? null;
       setUser(nextUser);
       setLoading(false);
-      if (event === 'SIGNED_IN' && nextUser) {
+
+      if (event === 'SIGNED_OUT') {
+        hadSessionRef.current = false;
+      } else if (event === 'SIGNED_IN' && nextUser && !hadSessionRef.current) {
+        // Explicit login only: a SIGNED_IN event fired while we already had a
+        // session (e.g. after tab-focus token refresh) must NOT redirect.
         syncProfileFromMetadata(nextUser);
         if (window.location.pathname !== '/') window.location.assign('/');
       } else if (nextUser && ['INITIAL_SESSION', 'USER_UPDATED', 'TOKEN_REFRESHED'].includes(event)) {
         syncProfileFromMetadata(nextUser);
       }
+
+      hadSessionRef.current = hadSessionRef.current || !!nextUser;
     });
 
     return () => {

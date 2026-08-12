@@ -27,6 +27,8 @@ export default function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [status, setStatus] = useState('idle');
 
+  const [emailName] = useState(() => `em_${Math.random().toString(36).slice(2, 10)}`);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setStatus('sending');
@@ -66,7 +68,9 @@ export default function Contact() {
             />
             <input
               type="email"
-              name="email"
+              name={emailName}
+              autoComplete="new-password"
+              data-lpignore="true"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               placeholder="Email address"

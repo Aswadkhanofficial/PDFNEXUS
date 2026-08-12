@@ -17,6 +17,12 @@ export default function ForceReset() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Randomized names defeat browser/password-manager autofill heuristics.
+  const [fieldNames] = useState(() => ({
+    password: `pw_${Math.random().toString(36).slice(2, 10)}`,
+    confirm: `pw2_${Math.random().toString(36).slice(2, 10)}`,
+  }));
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password.length < 8) {
@@ -68,6 +74,9 @@ export default function ForceReset() {
           <div className="relative">
             <input
               type={showPassword ? 'text' : 'password'}
+              name={fieldNames.password}
+              autoComplete="new-password"
+              data-lpignore="true"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="New password (min 8 characters)"
@@ -86,6 +95,9 @@ export default function ForceReset() {
           </div>
           <input
             type={showPassword ? 'text' : 'password'}
+            name={fieldNames.confirm}
+            autoComplete="new-password"
+            data-lpignore="true"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
             placeholder="Confirm new password"

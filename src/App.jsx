@@ -21,6 +21,7 @@ const Reorder = lazy(() => import('./pages/Reorder'));
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
 const Workspace = lazy(() => import('./pages/Workspace'));
+const Settings = lazy(() => import('./pages/Settings'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const Privacy = lazy(() => import('./pages/Privacy'));
 const Terms = lazy(() => import('./pages/Terms'));
@@ -89,6 +90,16 @@ export default function App() {
                 }
               />
               <Route path="/dashboard" element={<Navigate to="/workspace" replace />} />
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <Settings />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/admin"
                 element={

@@ -20,7 +20,11 @@ export function ToastProvider({ children }) {
   const push = useCallback(
     (message, type = 'error') => {
       const id = ++idRef.current;
-      setToasts((prev) => [...prev, { id, message, type }]);
+      setToasts((prev) => {
+        const last = prev[prev.length - 1];
+        if (last && last.message === message && last.type === type) return prev;
+        return [...prev.slice(-1), { id, message, type }];
+      });
       setTimeout(() => dismiss(id), 4500);
     },
     [dismiss],

@@ -13,7 +13,7 @@ const TABS = [
 
 export default function Header() {
   const { theme, toggleTheme } = useTheme();
-  const { user, signOut, isAdmin } = useAuth();
+  const { user, profile, signOut, isAdmin } = useAuth();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [toolsOpen, setToolsOpen] = useState(false);
@@ -24,7 +24,9 @@ export default function Header() {
   const tabs = isAdmin ? [...TABS, { label: 'Admin', to: '/admin', end: false }] : TABS;
 
   const onTools = pathname.startsWith('/tools');
-  const initial = (user?.user_metadata?.full_name || user?.email || 'U').charAt(0).toUpperCase();
+  const displayName = profile?.full_name || user?.user_metadata?.full_name || user?.email || 'Account';
+  const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url || null;
+  const initial = displayName.charAt(0).toUpperCase();
   const isTabActive = (tab) => (tab.end ? pathname === tab.to : pathname.startsWith(tab.to));
 
   useEffect(() => {
@@ -151,15 +153,21 @@ export default function Header() {
           {user ? (
             <div className="hidden items-center gap-2.5 md:flex">
               <Link
-                to="/workspace"
+                to="/settings"
+                title="Profile and settings"
+                onClick={closeMenus}
                 className="flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 py-1 pl-1 pr-3 transition-all duration-200 hover:shadow-[0_0_18px_-4px_rgba(139,92,246,0.6)]"
               >
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-tr from-violet-600 to-indigo-500 text-xs font-bold text-white">
-                  {initial}
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="" className="h-7 w-7 rounded-full object-cover" />
+                  ) : (
+                    initial
+                  )}
                 </span>
                 <span className="flex min-w-0 items-center gap-1.5">
                   <span className="max-w-[9rem] truncate text-sm font-semibold text-slate-700 dark:text-slate-200">
-                    {user?.user_metadata?.full_name || user?.email}
+                    {displayName}
                   </span>
                   {isAdmin && (
                     <svg
@@ -252,13 +260,22 @@ export default function Header() {
           </nav>
           <div className="mt-3 flex flex-col gap-2 border-t border-slate-200/70 pt-3 dark:border-slate-800">
             {user ? (
-              <button
-                type="button"
-                onClick={handleSignOut}
-                className="rounded-xl bg-red-500/10 px-4 py-3 text-center text-sm font-bold text-red-400 transition-colors hover:bg-red-500/20"
-              >
-                Sign Out
-              </button>
+              <>
+                <Link
+                  to="/settings"
+                  onClick={closeMenus}
+                  className="rounded-xl bg-slate-200/70 px-4 py-3 text-center text-sm font-bold text-slate-800 dark:bg-slate-800 dark:text-slate-100"
+                >
+                  Settings
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="rounded-xl bg-red-500/10 px-4 py-3 text-center text-sm font-bold text-red-400 transition-colors hover:bg-red-500/20"
+                >
+                  Sign Out
+                </button>
+              </>
             ) : (
               <>
                 <Link
