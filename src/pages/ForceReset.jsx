@@ -6,7 +6,7 @@ import { useToast } from '../components/Toast';
 
 /**
  * Un-skippable forced-reset view. Rendered by RequireResetWall instead of any
- * tool/dashboard/admin content while `profiles.requires_password_reset` is
+ * tool/workspace/admin content while `profiles.requires_password_reset` is
  * set. Full access is re-granted only after the password change lands.
  */
 export default function ForceReset() {

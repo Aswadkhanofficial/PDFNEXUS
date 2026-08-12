@@ -8,7 +8,7 @@ import ThemeToggle from './ThemeToggle';
 
 const TABS = [
   { label: 'Home', to: '/', end: true },
-  { label: 'Workspace', to: '/dashboard', end: false },
+  { label: 'Workspace', to: '/workspace', end: false },
 ];
 
 export default function Header() {
@@ -151,7 +151,7 @@ export default function Header() {
           {user ? (
             <div className="hidden items-center gap-2.5 md:flex">
               <Link
-                to="/dashboard"
+                to="/workspace"
                 className="flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 py-1 pl-1 pr-3 transition-all duration-200 hover:shadow-[0_0_18px_-4px_rgba(139,92,246,0.6)]"
               >
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-tr from-violet-600 to-indigo-500 text-xs font-bold text-white">

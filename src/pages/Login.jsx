@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Loader2, ArrowRight, CheckCircle2, Eye, EyeOff } from 'lucide-react';
-import { setRememberMe, REMEMBER_ME_KEY } from '../services/supabaseClient';
-import { supabase } from '../services/supabaseClient';
+import { supabase, REMEMBER_ME_KEY } from '../services/supabaseClient';
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMeState] = useState(
+  const [rememberMe, setRememberMe] = useState(
     () => localStorage.getItem(REMEMBER_ME_KEY) !== 'false'
   );
   const [isLoading, setIsLoading] = useState(false);
@@ -16,20 +15,33 @@ export default function Login() {
 
   const handleInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
+  const handleRememberMeChange = (e) => {
+    const checked = e.target.checked;
+    setRememberMe(checked);
+    localStorage.setItem(REMEMBER_ME_KEY, String(checked));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMsg('');
 
     try {
-      setRememberMe(rememberMe);
       const { error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
       });
 
       if (error) throw error;
-      navigate('/dashboard');
+
+      if (!rememberMe) {
+        // Don't persist the session: drop any auth tokens stored in
+        // localStorage so they can't survive the tab.
+        Object.keys(localStorage)
+          .filter((k) => k.startsWith('sb-'))
+          .forEach((k) => localStorage.removeItem(k));
+      }
+      navigate('/');
       
     } catch (error) {
       setErrorMsg(error.message);
@@ -96,7 +108,7 @@ export default function Login() {
                 <input 
                   type="checkbox" 
                   checked={rememberMe}
-                  onChange={(e) => setRememberMeState(e.target.checked)}
+                  onChange={handleRememberMeChange}
                   className="peer appearance-none w-4 h-4 border border-slate-300 rounded bg-white checked:bg-purple-600 checked:border-purple-600 transition-colors cursor-pointer dark:border-slate-600 dark:bg-slate-950" 
                 />
                 <CheckCircle2 className="w-3 h-3 text-white absolute opacity-0 peer-checked:opacity-100 pointer-events-none" strokeWidth={4} />

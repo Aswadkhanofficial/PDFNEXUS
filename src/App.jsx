@@ -78,7 +78,7 @@ export default function App() {
                 <Route path="/__dev/authgate" element={<AuthGateHarness />} />
               )}
               <Route
-                path="/dashboard"
+                path="/workspace"
                 element={
                   <ProtectedRoute>
                     <MainLayout>
@@ -87,6 +87,7 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route path="/dashboard" element={<Navigate to="/workspace" replace />} />
               <Route
                 path="/admin"
                 element={

@@ -31,7 +31,7 @@ export default function Privacy() {
         <p>
           Saved documents live in your private, per-user storage bucket protected by
           strict Row Level Security policies. You can download or permanently delete any
-          document from your dashboard at any time; deleted files are removed from our
+          document from your workspace at any time; deleted files are removed from our
           systems.
         </p>
       </LegalSection>
@@ -47,7 +47,7 @@ export default function Privacy() {
       <LegalSection title="Your Rights">
         <p>
           You may access, export, or delete your data at any time from your account
-          dashboard. You may also contact us directly and we will action your request
+          workspace. You may also contact us directly and we will action your request
           within 30 days.
         </p>
       </LegalSection>

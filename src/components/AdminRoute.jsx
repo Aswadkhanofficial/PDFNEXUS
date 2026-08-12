@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 
 /**
  * DB-backed route guard for /admin. Membership is decided by admin_roles
- * (via RLS); non-admins are silently redirected to /dashboard.
+ * (via RLS); non-admins are silently redirected to /workspace.
  */
 export default function AdminRoute({ children }) {
   const { user, loading, profile, isAdmin } = useAuth();
@@ -23,7 +23,7 @@ export default function AdminRoute({ children }) {
   }
 
   if (!isAdmin) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/workspace" replace />;
   }
 
   return children;
