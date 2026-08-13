@@ -46,17 +46,16 @@ export default function GlobalAuthListener() {
 
       // 2. 🔥 THE LOCATION FIX: Fetch and save location if it is missing in the database
       if (profile && !profile.location) {
-        fetch('https://ipapi.co/json/')
+        fetch('https://ipwho.is/')
           .then(res => res.json())
           .then(async (data) => {
-            if (data.city && data.country_name) {
-              const loc = `${data.city}, ${data.country_name}`;
-              // Update the location in Supabase
+            if (data.success && data.city && data.country) {
+              const loc = `${data.city}, ${data.country}`;
               await supabase.from('profiles').update({ location: loc }).eq('id', user.id);
               console.log("📍 Location captured and saved to Database:", loc);
             }
           })
-          .catch(err => console.warn("Location fetch blocked (AdBlocker or Network issue):", err.message));
+          .catch(err => console.warn("Location fetch blocked:", err.message));
       }
 
       const uniqueChannelName = `profile_watcher_${user.id}_${Date.now()}`;
