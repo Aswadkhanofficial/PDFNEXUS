@@ -4,6 +4,7 @@ import RequireResetWall from '../components/RequireResetWall';
 import Footer from '../components/landing/Footer';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../services/supabaseClient';
+import { nukeSession } from '../utils/nukeSession';
 
 export default function MainLayout({ children }) {
   const { user } = useAuth();
@@ -20,21 +21,36 @@ export default function MainLayout({ children }) {
     if (!uid) return;
     let cancelled = false;
     (async () => {
+      if (cancelled) return;
       try {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('location')
-          .eq('id', uid)
-          .single();
-        if (cancelled) return;
-        if (!profile?.location || profile.location === 'Unknown' || profile.location === '-') {
-          const res = await fetch('https://ipapi.co/json/');
-          const locData = await res.json();
-          const location = `${locData.city || 'Unknown'}, ${locData.country_name || 'Unknown'}`;
-          await supabase.from('profiles').update({ location }).eq('id', uid);
+        // === Part A: Server‑side session verifier ===
+        const { data, error } = await supabase.auth.getUser();
+        if (error || !data.user) {
+          return nukeSession();
         }
+
+        // === Part B: Realtime ban listener ===
+        const channel = supabase.channel('banned_listener')
+          .on(
+            'postgres_changes',
+            {
+              event: 'INSERT',
+              schema: 'public',
+              table: 'banned_users',
+              filter: `user_id=eq.${uid}`,
+            },
+            () => {
+              nukeSession();
+            }
+          )
+          .subscribe();
+
+        return () => {
+          cancelled = true;
+          supabase.removeChannel(channel);
+        };
       } catch {
-        // Silent by design: background best-effort, never blocks the app.
+        // Silent — never block the UI.
       }
     })();
     return () => {

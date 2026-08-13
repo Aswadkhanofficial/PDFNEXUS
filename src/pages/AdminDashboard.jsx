@@ -131,20 +131,34 @@ export default function AdminDashboard() {
     refreshAll();
   };
 
-  const deleteUser = async () => {
+const deleteUser = async () => {
     if (!userToDelete) return;
     setDeleting(true);
-    const { error } = await supabase.rpc('delete_user_by_admin', {
+
+    // Step 1: Instantly trigger the target user's realtime listener to nuke their session
+    const { error: banError } = await supabase.from('banned_users').insert([{ user_id: userToDelete.id }]);
+    if (banError) {
+      toastError("Ban step failed: " + banError.message);
+      setDeleting(false);
+      return;
+    }
+
+    // Step 2: Wait 0.5 seconds for the websocket payload to travel across the network
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Step 3: Hard delete the user via RPC
+    const { error: deleteError } = await supabase.rpc('delete_user_by_admin', {
       target_user_id: userToDelete.id,
     });
     setDeleting(false);
-    if (error) {
-      toastError(error.message);
-      return;
+    if (deleteError) {
+      toastError("Delete step failed: " + deleteError.message);
+    } else {
+      toastSuccess("User permanently deleted and session wiped.");
+      setUserToDelete(null);
+      // Refresh the local users list
+      setUsers((prev) => prev.filter((u) => u.id !== userToDelete.id));
     }
-    toastSuccess('User deleted');
-    setUsers((prev) => prev.filter((u) => u.id !== userToDelete.id));
-    setUserToDelete(null);
   };
 
   const toggleAdmin = async (row) => {
