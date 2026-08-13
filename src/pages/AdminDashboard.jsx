@@ -37,6 +37,8 @@ export default function AdminDashboard() {
   const [busyId, setBusyId] = useState(null);
   const [tempPassword, setTempPassword] = useState({ userId: null, password: '', email: '' });
   const [copied, setCopied] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const isSuperAdmin = stats?.current_user_role === 'super_admin';
   const isAdminRow = (row) => (stats?.admin_users ?? []).some((a) => a.user_id === row.id);
@@ -127,6 +129,22 @@ export default function AdminDashboard() {
     }
     toastSuccess(row.is_banned ? 'User unbanned' : 'User banned');
     refreshAll();
+  };
+
+  const deleteUser = async () => {
+    if (!userToDelete) return;
+    setDeleting(true);
+    const { error } = await supabase.rpc('delete_user_by_admin', {
+      target_user_id: userToDelete.id,
+    });
+    setDeleting(false);
+    if (error) {
+      toastError(error.message);
+      return;
+    }
+    toastSuccess('User deleted');
+    setUsers((prev) => prev.filter((u) => u.id !== userToDelete.id));
+    setUserToDelete(null);
   };
 
   const toggleAdmin = async (row) => {
@@ -485,6 +503,18 @@ export default function AdminDashboard() {
                               <ShieldCheck className="w-3.5 h-3.5" /> Protected Role
                             </span>
                           )}
+                          {canModerateRow(row) && !row.isAdmin && (
+                            <button
+                              type="button"
+                              disabled={busyId === row.id}
+                              onClick={() => setUserToDelete(row)}
+                              title="Permanently delete this account"
+                              className="flex items-center gap-1.5 rounded-lg border border-red-500/40 bg-red-500/10 text-red-600 hover:bg-red-500/20 px-3 py-2 text-xs font-bold transition-colors disabled:opacity-50 dark:border-red-500/40 dark:text-red-400"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              Delete
+                            </button>
+                          )}
                           {canModerateRow(row) && (
                             <button
                               type="button"
@@ -511,6 +541,43 @@ export default function AdminDashboard() {
           Access to this console is granted exclusively by the admin_roles table in the database — the client never sees the service_role key.
         </p>
       </div>
+
+      {userToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="delete-user-heading">
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 max-w-sm w-full shadow-2xl relative">
+            <h2 id="delete-user-heading" className="text-lg font-extrabold text-red-500">
+              Delete User Account?
+            </h2>
+            <p className="mt-2 text-sm text-slate-400">
+              Are you sure? This will permanently wipe this user's account and all associated data. This action cannot be undone.
+            </p>
+            {userToDelete.email && (
+              <p className="mt-3 truncate rounded-lg bg-slate-800/80 border border-slate-700 px-3 py-2 font-mono text-xs text-slate-300">
+                {userToDelete.email}
+              </p>
+            )}
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setUserToDelete(null)}
+                disabled={deleting}
+                className="rounded-lg border border-slate-700 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-slate-800 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={deleteUser}
+                disabled={deleting}
+                className="flex items-center gap-1.5 rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white hover:bg-red-500 transition-colors disabled:opacity-50"
+              >
+                {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                Delete Permanently
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
