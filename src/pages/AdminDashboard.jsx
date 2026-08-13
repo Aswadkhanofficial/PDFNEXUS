@@ -6,7 +6,7 @@ import {
 import { supabase } from '../services/supabaseClient';
 import { useToast } from '../components/Toast';
 
-const ROW_COLS = 'id, email, full_name, is_banned, requires_password_reset, created_at';
+const ROW_COLS = 'id, email, full_name, is_banned, requires_password_reset, created_at, location';
 
 const formatDate = (iso) =>
   new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -408,6 +408,7 @@ export default function AdminDashboard() {
                   <tr className="border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:text-slate-400">
                     <th className="px-5 py-3.5 font-semibold">User</th>
                     <th className="px-5 py-3.5 font-semibold">Joined</th>
+                    <th className="px-5 py-3.5 font-semibold">Location</th>
                     <th className="px-5 py-3.5 font-semibold">Status</th>
                     <th className="px-5 py-3.5 font-semibold text-right">Actions</th>
                   </tr>
@@ -423,6 +424,7 @@ export default function AdminDashboard() {
                         </p>
                       </td>
                       <td className="px-5 py-4 text-slate-600 dark:text-slate-400">{row.created_at ? formatDate(row.created_at) : '—'}</td>
+                      <td className="px-5 py-4 text-slate-600 dark:text-slate-400">{row.location || '—'}</td>
                       <td className="px-5 py-4">
                         <div className="flex flex-wrap gap-1.5">
                           {isSuperAdminRow(row) && (

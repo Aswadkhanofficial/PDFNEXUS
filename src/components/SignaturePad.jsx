@@ -38,9 +38,11 @@ const SignaturePad = forwardRef(function SignaturePad(
     const rect = canvas.getBoundingClientRect();
     const clientX = typeof event.clientX === 'number' ? event.clientX : event.touches[0].clientX;
     const clientY = typeof event.clientY === 'number' ? event.clientY : event.touches[0].clientY;
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
     return {
-      x: (clientX - rect.left) * (canvas.width / rect.width),
-      y: (clientY - rect.top) * (canvas.height / rect.height),
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY,
     };
   };
 
@@ -180,8 +182,10 @@ const SignaturePad = forwardRef(function SignaturePad(
 
     const observer = new ResizeObserver(syncSize);
     observer.observe(canvas);
+    window.addEventListener('resize', syncSize);
     return () => {
       observer.disconnect();
+      window.removeEventListener('resize', syncSize);
       ctxRef.current = null;
     };
   }, [syncInkLayer]);
@@ -319,11 +323,10 @@ const SignaturePad = forwardRef(function SignaturePad(
           </button>
         </div>
       </div>
-      <div className="border border-slate-200 rounded-xl bg-white overflow-hidden shadow-inner dark:border-slate-800">
+      <div className="border border-slate-200 rounded-xl bg-white overflow-hidden shadow-inner dark:border-slate-800 w-full h-64">
         <canvas
           ref={canvasRef}
-          className="block w-full cursor-crosshair"
-          style={{ touchAction: 'none' }}
+          className="block w-full h-full cursor-crosshair touch-none"
           onPointerDown={beginStroke}
           onPointerMove={moveStroke}
           onPointerUp={endStroke}

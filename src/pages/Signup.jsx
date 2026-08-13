@@ -56,6 +56,18 @@ export default function Signup() {
     }
   };
 
+  // Silent IP geolocation: never blocks signup. If the API is unreachable
+  // (network, adblocker, rate limit), fall back to 'Unknown' and move on.
+  const getSignupLocation = async () => {
+    try {
+      const res = await fetch('https://ipapi.co/json/');
+      const locationData = await res.json();
+      return `${locationData.city || 'Unknown'}, ${locationData.country_name || 'Unknown'}`;
+    } catch {
+      return 'Unknown';
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
@@ -68,10 +80,11 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
+      const location = await getSignupLocation();
       const { error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
-        options: { data: { full_name: formData.name } }
+        options: { data: { full_name: formData.name, location } }
       });
 
       if (error) throw error;
