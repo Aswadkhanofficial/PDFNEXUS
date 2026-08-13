@@ -45,9 +45,11 @@ export default function Hero() {
           className="animate-rise font-display text-5xl font-bold leading-[1.08] tracking-tight text-slate-900 transition-colors duration-500 dark:text-white sm:text-6xl lg:text-7xl"
           style={{ animationDelay: '0.1s' }}
         >
-          Merge, Split, Compress &amp; Sign PDFs
+          The Ultimate 8-in-1
+          <br className="hidden sm:block" />
+          PDF Workspace
           <span className="gradient-text text-glow block pb-2 pt-2">
-            without leaving your device.
+            Fast. Secure. 100% Private.
           </span>
         </h1>
 
@@ -55,9 +57,9 @@ export default function Hero() {
           className="animate-rise mt-6 max-w-2xl text-base leading-relaxed text-slate-600 transition-colors duration-500 dark:text-slate-400 sm:text-lg"
           style={{ animationDelay: '0.2s' }}
         >
-          PDFNexus is the private, production-grade PDF workspace. Merge, split,
-          compress, rotate, watermark, reorder and e-sign documents directly in your
-          browser — files never touch a server, so they never leave your hands.
+          PDFNexus is the private, production-grade PDF workspace. Merge, Split,
+          Compress, Protect, E-Sign, Convert, Unlock and Watermark PDFs directly in
+          your browser — files never touch a server, so they never leave your hands.
         </p>
 
         <div
