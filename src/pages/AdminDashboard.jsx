@@ -135,28 +135,22 @@ const deleteUser = async () => {
     if (!userToDelete) return;
     setDeleting(true);
 
-    // Step 1: Instantly trigger the target user's realtime listener to nuke their session
-    const { error: banError } = await supabase.from('banned_users').insert([{ user_id: userToDelete.id }]);
-    if (banError) {
-      toastError("Ban step failed: " + banError.message);
-      setDeleting(false);
-      return;
-    }
+    // Step 1: Force a ban state to lock the screen, use UPSERT to avoid duplicate key crashes
+    const { error: banError } = await supabase.from('banned_users').upsert([{ user_id: userToDelete.id }], { onConflict: 'user_id' });
+    if (banError) console.warn("Ban step issue:", banError.message);
 
-    // Step 2: Wait 0.5 seconds for the websocket payload to travel across the network
+    // Wait for socket propagation
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    // Step 3: Hard delete the user via RPC
-    const { error: deleteError } = await supabase.rpc('delete_user_by_admin', {
-      target_user_id: userToDelete.id,
-    });
+    // Step 2: Nuke from auth.users
+    const { error: deleteError } = await supabase.rpc('delete_user_by_admin', { target_user_id: userToDelete.id });
     setDeleting(false);
     if (deleteError) {
-      toastError("Delete step failed: " + deleteError.message);
+      toastError("Delete failed: " + deleteError.message);
     } else {
-      toastSuccess("User permanently deleted and session wiped.");
+      toastSuccess("User permanently wiped.");
       setUserToDelete(null);
-      // Refresh the local users list
+      // Refresh user list
       setUsers((prev) => prev.filter((u) => u.id !== userToDelete.id));
     }
   };
