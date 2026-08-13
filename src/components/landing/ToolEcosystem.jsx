@@ -63,16 +63,15 @@ export default function ToolEcosystem() {
         </motion.div>
 
         <motion.div
-          className="absolute inset-0 m-auto flex h-20 w-20 flex-col items-center justify-center gap-1 rounded-2xl border border-white/40 bg-white/80 shadow-lg shadow-violet-600/20 backdrop-blur dark:border-white/10 dark:bg-slate-900/80"
+          className="absolute inset-0 m-auto flex h-20 w-20 items-center justify-center rounded-2xl border border-white/40 bg-white/80 shadow-lg shadow-violet-600/20 backdrop-blur dark:border-white/10 dark:bg-slate-900/80"
           animate={{ scale: [1, 1.05, 1] }}
           transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-500 text-white shadow-md shadow-violet-600/25">
-            <FileText aria-hidden className="h-5 w-5" />
-          </span>
-          <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-            Your PDF
-          </span>
+          <img
+            src="/logo.png"
+            alt="PDFNexus Hub"
+            className="w-full h-full object-cover rounded-2xl shadow-[0_0_30px_rgba(168,85,247,0.4)]"
+          />
         </motion.div>
       </div>
 

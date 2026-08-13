@@ -73,9 +73,7 @@ export default function Header() {
     <header className="sticky top-0 z-50 border-b border-slate-200/60 bg-white/70 backdrop-blur-xl transition-all duration-300 dark:border-slate-800/70 dark:bg-slate-950/70">
       <div className="relative mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-6">
         <Link to="/" className="group flex shrink-0 items-center gap-2.5" aria-label="PDFNexus home" onClick={closeMenus}>
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-500 text-white shadow-lg shadow-violet-600/30 transition-transform duration-300 group-hover:rotate-3 group-hover:scale-105">
-            <FileStack aria-hidden className="h-5 w-5" />
-          </span>
+          <img src="/logo.png" alt="PDFNexus" className="w-8 h-8 rounded-lg object-cover" />
           <span className="font-display text-xl font-bold tracking-tight text-slate-900 dark:text-white">
             PDF<span className="gradient-text">Nexus</span>
           </span>
