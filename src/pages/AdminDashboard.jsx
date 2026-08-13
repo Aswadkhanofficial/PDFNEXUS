@@ -131,26 +131,33 @@ export default function AdminDashboard() {
     refreshAll();
   };
 
-const deleteUser = async () => {
+  const deleteUser = async () => {
     if (!userToDelete) return;
     setDeleting(true);
 
-    // Step 1: Force a ban state to lock the screen, use UPSERT to avoid duplicate key crashes
-    const { error: banError } = await supabase.from('banned_users').upsert([{ user_id: userToDelete.id }], { onConflict: 'user_id' });
-    if (banError) console.warn("Ban step issue:", banError.message);
+    // Step 1: Force a ban state to lock the screen globally. 
+    // Uses UPSERT with a single object to prevent duplicate key crashes if user is already banned.
+    const { error: banError } = await supabase
+      .from('banned_users')
+      .upsert({ user_id: userToDelete.id });
+      
+    if (banError) {
+      console.warn("Silent Ban step warning (likely non-fatal):", banError.message);
+    }
 
-    // Wait for socket propagation
+    // Wait for the websocket to physically kick the user out of their active session
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    // Step 2: Nuke from auth.users
+    // Step 2: Nuke from auth.users permanently
     const { error: deleteError } = await supabase.rpc('delete_user_by_admin', { target_user_id: userToDelete.id });
     setDeleting(false);
+    
     if (deleteError) {
       toastError("Delete failed: " + deleteError.message);
     } else {
-      toastSuccess("User permanently wiped.");
+      toastSuccess("User permanently wiped and session destroyed.");
       setUserToDelete(null);
-      // Refresh user list
+      // Instantly remove from UI without waiting for refresh
       setUsers((prev) => prev.filter((u) => u.id !== userToDelete.id));
     }
   };

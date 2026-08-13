@@ -10,7 +10,10 @@ import PublicLayout from './layouts/PublicLayout';
 import Home from './pages/Home';
 import AuthGateHarness from './testing/AuthGateHarness';
 import { TOOLS } from './data/tools';
+import GlobalAuthListener from './components/GlobalAuthListener'; // Added global listener
 
+
+const Banned = lazy(() => import('./pages/Banned'));
 const Merge = lazy(() => import('./pages/Merge'));
 const Sign = lazy(() => import('./pages/Sign'));
 const Split = lazy(() => import('./pages/Split'));
@@ -55,6 +58,7 @@ export default function App() {
     <AuthProvider>
       <ToastProvider>
         <ScrollToTop />
+        <GlobalAuthListener /> {/* Active listener to kill banned/deleted sessions globally */}
         <Suspense fallback={<PageLoader />}>
           <Routes>
               <Route element={<PublicLayout />}>
@@ -62,6 +66,7 @@ export default function App() {
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/banned" element={<Banned />} />
               </Route>
 
               {TOOLS.map((tool) => {
@@ -124,8 +129,8 @@ export default function App() {
                 }
               />
             </Routes>
-          </Suspense>
-        </ToastProvider>
-      </AuthProvider>
+        </Suspense>
+      </ToastProvider>
+    </AuthProvider>
   );
 }
