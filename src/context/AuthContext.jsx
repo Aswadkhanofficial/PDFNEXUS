@@ -15,6 +15,7 @@ export function AuthProvider({ children }) {
   // undefined = not loaded yet; null = loaded, no row
   const [profile, setProfile] = useState(undefined);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isBanned, setIsBanned] = useState(false);
   const [prevUserId, setPrevUserId] = useState(null);
   const currentUserIdRef = useRef(null);
   // true once any session has been observed on this page load. Gates the
@@ -108,14 +109,18 @@ export function AuthProvider({ children }) {
     setPrevUserId(userId);
     setProfile(userId ? undefined : null);
     setIsAdmin(false);
+    setIsBanned(false);
   }
 
   // Auth interceptor: fetch own profile + admin_roles membership. RLS keeps
   // non-admins at zero rows, so `isAdmin` is DB-governed, not client logic.
+  // The initial ban check (profiles.is_banned) runs first; once it resolves,
+  // a Realtime subscription on banned_users arms the instant-lockout path.
   useEffect(() => {
     const uid = user?.id;
     if (!uid) return;
     let cancelled = false;
+    let banSubscription = null;
     Promise.all([
       supabase.from('profiles').select(PROFILE_COLS).eq('id', uid).maybeSingle(),
       supabase.from('admin_roles').select('role_type').eq('user_id', uid).maybeSingle(),
@@ -123,9 +128,29 @@ export function AuthProvider({ children }) {
       if (cancelled) return;
       setProfile(p.data ?? null);
       setIsAdmin(!!role.data);
+      setIsBanned(!!p.data?.is_banned);
+
+      // Realtime listener: hijack the session the millisecond this user's id
+      // is inserted into banned_users, regardless of which page they're on.
+      banSubscription = supabase
+        .channel('banned-users-listener')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'banned_users',
+            filter: `user_id=eq.${uid}`,
+          },
+          () => {
+            setIsBanned(true);
+          }
+        )
+        .subscribe();
     });
     return () => {
       cancelled = true;
+      if (banSubscription) supabase.removeChannel(banSubscription);
     };
   }, [user?.id]);
 
@@ -145,7 +170,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, profile, isAdmin, refreshProfile, signOut }}>
+    <AuthContext.Provider value={{ user, loading, profile, isAdmin, isBanned, refreshProfile, signOut }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Users, Ban, ShieldCheck, KeyRound, Loader2, RefreshCw, Copy, CheckCircle2,
   FileText, HardDrive, Activity, UserPlus, ShieldAlert, TrendingUp, Mail, Reply, Trash2,
@@ -43,6 +43,13 @@ export default function AdminDashboard() {
   const isSuperAdminRow = (row) =>
     (stats?.admin_users ?? []).some((a) => a.user_id === row.id && a.role_type === 'super_admin');
   const canModerateRow = (row) => !isSuperAdminRow(row) || isSuperAdmin;
+
+  // Merge admin_roles (via admin_get_stats) into the user list so every row
+  // clearly carries an isAdmin flag before rendering any moderation actions.
+  const usersWithRoles = useMemo(() => {
+    const adminIds = new Set((stats?.admin_users ?? []).map((a) => a.user_id));
+    return users.map((u) => ({ ...u, isAdmin: adminIds.has(u.id) }));
+  }, [users, stats]);
 
   const todayMessagesCount = messages.filter(
     (m) => new Date(m.created_at).toDateString() === new Date().toDateString()
@@ -104,6 +111,10 @@ export default function AdminDashboard() {
   };
 
   const toggleBan = async (row) => {
+    if (row.isAdmin) {
+      toastError('Admin roles are protected and cannot be banned.');
+      return;
+    }
     setBusyId(row.id);
     const { error } = await supabase.rpc('admin_set_banned', {
       p_user_id: row.id,
@@ -402,7 +413,7 @@ export default function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((row) => (
+                  {usersWithRoles.map((row) => (
                     <tr key={row.id} className="border-b border-slate-200/80 last:border-0 hover:bg-slate-100/70 transition-colors dark:border-slate-800/60 dark:hover:bg-slate-800/30">
                       <td className="px-5 py-4">
                         <p className="font-semibold text-slate-800 dark:text-slate-200">{row.email || '—'}</p>
@@ -449,7 +460,7 @@ export default function AdminDashboard() {
                               {isAdminRow(row) ? 'Revoke Admin' : 'Make Admin'}
                             </button>
                           )}
-                          {canModerateRow(row) && (
+                          {canModerateRow(row) && !row.isAdmin && (
                             <button
                               type="button"
                               disabled={busyId === row.id}
@@ -463,6 +474,14 @@ export default function AdminDashboard() {
                               {busyId === row.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Ban className="w-3.5 h-3.5" />}
                               {row.is_banned ? 'Unban' : 'Ban'}
                             </button>
+                          )}
+                          {row.isAdmin && (
+                            <span
+                              title="Admin roles are protected and cannot be banned."
+                              className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold text-slate-500 dark:border-slate-600 dark:text-slate-400"
+                            >
+                              <ShieldCheck className="w-3.5 h-3.5" /> Protected Role
+                            </span>
                           )}
                           {canModerateRow(row) && (
                             <button
