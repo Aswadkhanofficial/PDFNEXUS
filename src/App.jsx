@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './components/Toast';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -54,10 +54,9 @@ export default function App() {
   return (
     <AuthProvider>
       <ToastProvider>
-        <Router>
-          <ScrollToTop />
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
+        <ScrollToTop />
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
               <Route element={<PublicLayout />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/privacy" element={<Privacy />} />
@@ -126,8 +125,7 @@ export default function App() {
               />
             </Routes>
           </Suspense>
-        </Router>
-      </ToastProvider>
-    </AuthProvider>
+        </ToastProvider>
+      </AuthProvider>
   );
 }
