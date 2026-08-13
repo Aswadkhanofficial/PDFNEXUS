@@ -1,79 +1,12 @@
 import { Link } from 'react-router-dom';
-import { ArrowDown, ArrowRight, CircleCheck, FileStack, LayoutGrid, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowDown, ArrowRight, LayoutGrid, ShieldCheck, Sparkles } from 'lucide-react';
+import ToolEcosystem from './ToolEcosystem';
 
 const stats = [
   { value: '8', label: 'free PDF tools' },
   { value: '0', label: 'uploads — ever' },
   { value: '100%', label: 'client-side processing' },
 ];
-
-function DocCard({ tone }) {
-  const chip =
-    tone === 'violet'
-      ? 'bg-violet-500/15 text-violet-500 dark:text-violet-400'
-      : 'bg-indigo-500/15 text-indigo-500 dark:text-indigo-400';
-
-  return (
-    <div className="glass h-32 w-40 rounded-2xl p-3 shadow-lg shadow-slate-950/10 dark:shadow-slate-950/60">
-      <div className="flex items-center gap-2">
-        <span className={`flex h-7 w-7 items-center justify-center rounded-lg ${chip}`}>
-          <FileStack aria-hidden className="h-4 w-4" />
-        </span>
-        <span className="h-2 w-16 rounded-full bg-slate-300/80 dark:bg-slate-700" />
-      </div>
-      <div className="mt-3 space-y-2">
-        <div className="h-1.5 w-full rounded-full bg-slate-200/90 dark:bg-slate-700/70" />
-        <div className="h-1.5 w-4/5 rounded-full bg-slate-200/90 dark:bg-slate-700/70" />
-        <div className="h-1.5 w-3/5 rounded-full bg-slate-200/90 dark:bg-slate-700/70" />
-      </div>
-    </div>
-  );
-}
-
-function MergeDemo() {
-  return (
-    <div className="animate-rise mt-10 w-full max-w-lg" style={{ animationDelay: '0.55s' }}>
-      <div className="glass relative h-56 overflow-hidden rounded-3xl shadow-2xl shadow-slate-950/10 dark:shadow-slate-950/60">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-violet-500/10 to-transparent"
-        />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="relative h-40 w-48">
-            <div className="merge-a absolute left-1/2 -ml-20">
-              <DocCard tone="violet" />
-            </div>
-            <div className="merge-b absolute left-1/2 -ml-20 top-2">
-              <DocCard tone="indigo" />
-            </div>
-            <div className="merge-result absolute left-1/2 top-0 -ml-[5.5rem]">
-              <div className="glass h-36 w-44 rounded-2xl p-3 shadow-xl shadow-slate-950/15 dark:shadow-slate-950/70">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-violet-600 to-indigo-500 text-white">
-                    <FileStack aria-hidden className="h-4 w-4" />
-                  </span>
-                  <span className="h-2 w-20 rounded-full bg-gradient-to-r from-violet-500 to-indigo-400" />
-                </div>
-                <div className="mt-3 space-y-2">
-                  <div className="h-1.5 w-full rounded-full bg-slate-200/90 dark:bg-slate-700/70" />
-                  <div className="h-1.5 w-4/5 rounded-full bg-slate-200/90 dark:bg-slate-700/70" />
-                  <div className="h-1.5 w-3/5 rounded-full bg-slate-200/90 dark:bg-slate-700/70" />
-                </div>
-                <span className="merge-check absolute -right-2 -top-2 flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 text-white shadow-lg shadow-emerald-500/40">
-                  <CircleCheck aria-hidden className="h-5 w-5" />
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <p className="mt-4 flex items-center justify-center gap-2 text-sm font-medium text-slate-500 transition-colors duration-500 dark:text-slate-400">
-        <CircleCheck aria-hidden className="h-4 w-4 text-emerald-500" />
-        Merged 2 files to one — 0.4s, entirely on your device
-      </p>
-    </div>
-  );
-}
 
 export default function Hero() {
   return (
@@ -174,7 +107,7 @@ export default function Hero() {
           ))}
         </div>
 
-        <MergeDemo />
+        <ToolEcosystem />
       </div>
     </section>
   );
