@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { supabase } from '../services/supabaseClient';
+import { useSessionVerifier } from '../hooks/useSessionVerifier';
 
 const AuthContext = createContext(null);
 
@@ -102,6 +103,10 @@ export function AuthProvider({ children }) {
       subscription.unsubscribe();
     };
   }, [syncProfileFromMetadata]);
+
+  // Server-side session verifier: kicks out "ghost" users whose JWT is
+  // still active locally but whose row no longer exists in auth.users.
+  useSessionVerifier();
 
   // Reset profile/admin state as the session switches; loading resumes.
   const userId = user?.id ?? null;
