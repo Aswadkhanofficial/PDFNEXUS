@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import PageTransition from '../components/PageTransition';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { Rnd } from 'react-rnd';
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
@@ -238,7 +239,8 @@ export default function Sign() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8 flex flex-col items-center text-slate-900 dark:bg-slate-950 dark:text-slate-200">
+    <PageTransition>
+      <div className="min-h-screen bg-slate-50 p-8 flex flex-col items-center text-slate-900 dark:bg-slate-950 dark:text-slate-200">
       <div className="max-w-4xl w-full bg-white border border-slate-200 rounded-2xl p-8 shadow-2xl dark:bg-slate-900 dark:border-slate-800">
         <div className="flex items-center gap-3 mb-6">
           <div className="bg-purple-500/20 p-3 rounded-xl text-purple-600 dark:text-purple-400">
@@ -534,6 +536,7 @@ export default function Sign() {
         </div>
       </div>
       {paywall.premiumModal}
-    </div>
+      </div>
+    </PageTransition>
   );
 }

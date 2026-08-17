@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './components/Toast';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -54,13 +55,15 @@ function ScrollToTop() {
 }
 
 export default function App() {
+  const location = useLocation();
   return (
     <AuthProvider>
       <ToastProvider>
         <ScrollToTop />
         <GlobalAuthListener /> {/* Active listener to kill banned/deleted sessions globally */}
         <Suspense fallback={<PageLoader />}>
-          <Routes>
+          <AnimatePresence mode="wait" initial={false}>
+            <Routes location={location} key={location.pathname}>
               <Route element={<PublicLayout />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/privacy" element={<Privacy />} />
@@ -129,6 +132,7 @@ export default function App() {
                 }
               />
             </Routes>
+          </AnimatePresence>
         </Suspense>
       </ToastProvider>
     </AuthProvider>

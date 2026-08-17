@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { FileText, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { TOOLS } from '../../data/tools';
 
 const RADIUS = 170;
@@ -10,7 +10,26 @@ const COUNT = TOOLS.length;
 export default function ToolEcosystem() {
   return (
     <section className="flex w-full flex-col items-center justify-center">
-      <div className="relative mx-auto flex h-[480px] w-full max-w-xl items-center justify-center">
+      <div className="grid w-full max-w-xl grid-cols-2 gap-4 p-4 md:hidden">
+        {TOOLS.map((tool) => (
+          <Link
+            key={tool.slug}
+            to={tool.path}
+            className="group flex min-w-0 flex-col items-center justify-center gap-2 rounded-2xl border border-white/40 bg-white/80 px-3 py-4 text-center shadow-lg shadow-violet-600/20 backdrop-blur transition-all duration-300 hover:border-violet-500/60 dark:border-white/10 dark:bg-slate-900/80"
+          >
+            <span
+              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr ${tool.gradient} text-white shadow-md shadow-violet-600/25 transition-transform duration-300 group-hover:scale-110`}
+            >
+              <tool.icon aria-hidden className="h-5 w-5" />
+            </span>
+            <span className="break-words text-xs font-semibold leading-tight text-slate-700 transition-colors duration-300 group-hover:text-violet-600 dark:text-slate-300 dark:group-hover:text-violet-400">
+              {tool.name}
+            </span>
+          </Link>
+        ))}
+      </div>
+
+      <div className="relative hidden h-[500px] w-[500px] items-center justify-center md:flex">
         <div
           aria-hidden
           className="absolute h-[380px] w-[380px] rounded-full border border-violet-500/10 dark:border-violet-400/10"

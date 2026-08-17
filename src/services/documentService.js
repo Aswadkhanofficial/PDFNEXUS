@@ -1,6 +1,6 @@
 import { supabase } from './supabaseClient';
 
-const BUCKET = 'documents';
+const BUCKET = 'user_documents';
 
 const getCurrentUserId = async () => {
   const { data: { user } } = await supabase.auth.getUser();

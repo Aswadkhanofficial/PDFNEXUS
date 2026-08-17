@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import PageTransition from '../components/PageTransition';
 import { mergePdfs } from '../services/pdfEngine';
 import { callWorker } from '../services/workerClient';
 import { usePaywall } from '../hooks/usePaywall.jsx';
@@ -116,7 +117,8 @@ export default function Merge() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-900 dark:bg-slate-950 dark:text-white">
+    <PageTransition>
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-900 dark:bg-slate-950 dark:text-white">
       <div className="max-w-xl w-full bg-white border border-slate-200 rounded-xl p-8 shadow-2xl flex flex-col items-center gap-6 dark:bg-slate-900 dark:border-slate-800">
         
         <div className="text-center w-full flex flex-col items-center">
@@ -283,6 +285,7 @@ export default function Merge() {
 
       </div>
       {paywall.premiumModal}
-    </div>
+      </div>
+    </PageTransition>
   );
 }
